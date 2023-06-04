@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "irods4R",
+    "section": "",
+    "text": "categories: [news]\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nMay 28, 2023\n\n\nHarlow Malloc\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "irods4R",
+    "section": "",
+    "text": "title: “Welcome To My Blog” author: - “Martin Schobben” - “Mariana Montes” - “Terrell Russell” date: “29 May, 2023” categories: [news]\n\nThe data that drives our R workflow is just as important\nNevertheless,\nThere are several data management solutions available for R, mainly trough ,. nonetheless iRODS simplifies storing data as you can store any data type you want. We leveraged this functionality for R in that you can move around and store any R object you like.\nLet’s have a look this by launching an iRODS demo server, like so:\nNote that one needs Bash and Docker (with docker-compose) to use this mock-up\n\nlibrary(rirods)\nuse_irods_demo(\"martin\", \"secret\")\n\n\nDo the following to connect with the iRODS demo server: \ncreate_irods(\"http://localhost/irods-rest/0.9.3\", \"tempZone/home\") \niauth(\"martin\", \"secret\")\n\n\n\ncreate_irods(\"http://localhost/irods-rest/0.9.3\", \"/tempZone/home\")\n\n\niauth(\"martin\", \"secret\")\n\nImagine you just created an amazing R workflow:\n\nlibrary(tibble)\nlibrary(tidyr)\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nvolcano_long <- as_tibble(volcano) |>\n  rownames_to_column(\"X\") |> \n  mutate(X = as.integer(X)) |> \n  pivot_longer(\n    !X,     \n    cols_vary = \"slowest\",\n    names_to = c(\".value\", \"Y\"),\n    names_pattern = \"(V)(\\\\d+)\",\n    names_transform = list(Y = as.integer)\n  ) \n\nWarning: The `x` argument of `as_tibble.matrix()` must have unique column names if\n`.name_repair` is omitted as of tibble 2.0.0.\nℹ Using compatibility `.name_repair`.\n\n\n\nlibrary(ggplot2)\np <- ggplot(volcano_long, aes(X, Y, fill= V)) + \n    geom_tile() +\n    labs(title = \"Volcano\") +\n    theme_void() +\n    theme(legend.position = \"none\")\n\n\nisaveRDS(p, \"p.rds\", count = 3e3)\n\n\nireadRDS(\"p.rds\", count = 8e6)\n\n\n\n\nLet’s spin back and give a short introduction to iRODS.\n\nstop_irods_demo()"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  }
+]

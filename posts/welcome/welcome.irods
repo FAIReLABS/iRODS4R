@@ -1,0 +1,2 @@
+host: http://localhost/irods-rest/0.9.3
+zone_path: /tempZone/home

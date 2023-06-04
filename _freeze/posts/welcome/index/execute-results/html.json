@@ -1,0 +1,16 @@
+{
+  "hash": "cdf1e55ffcf05d43eeeae4f2887555d8",
+  "result": {
+    "markdown": "---\n\n---\n\ntitle: \"Welcome To My Blog\"\nauthor: \n  - \"Martin Schobben\"\n  - \"Mariana Montes\"\n  - \"Terrell Russell\"\ndate: \"29 May, 2023\"\ncategories: [news]\n\n---\n\n\n\nThe data that drives our R workflow is just as important\n\nNevertheless,\n\nThere are several data management solutions available for R, mainly trough ,. nonetheless iRODS simplifies storing data as you can store any data type you want. We leveraged this functionality for R in that you can move around and store any R object you like.\n\nLet's have a look this by launching an iRODS demo server, like so:\n\n*Note that one needs Bash and Docker (with docker-compose) to use this mock-up*\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(rirods)\nuse_irods_demo(\"martin\", \"secret\")\n```\n\n::: {.cell-output .cell-output-stderr}\n```\n\nDo the following to connect with the iRODS demo server: \ncreate_irods(\"http://localhost/irods-rest/0.9.3\", \"tempZone/home\") \niauth(\"martin\", \"secret\")\n```\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ncreate_irods(\"http://localhost/irods-rest/0.9.3\", \"/tempZone/home\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\niauth(\"martin\", \"secret\")\n```\n:::\n\nImagine you just created an amazing R workflow:\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tibble)\nlibrary(tidyr)\nlibrary(dplyr)\n```\n\n::: {.cell-output .cell-output-stderr}\n```\n\nAttaching package: 'dplyr'\n```\n:::\n\n::: {.cell-output .cell-output-stderr}\n```\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n```\n:::\n\n::: {.cell-output .cell-output-stderr}\n```\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n```\n:::\n\n```{.r .cell-code}\nvolcano_long <- as_tibble(volcano) |>\n  rownames_to_column(\"X\") |> \n  mutate(X = as.integer(X)) |> \n  pivot_longer(\n    !X,     \n    cols_vary = \"slowest\",\n    names_to = c(\".value\", \"Y\"),\n    names_pattern = \"(V)(\\\\d+)\",\n    names_transform = list(Y = as.integer)\n  ) \n```\n\n::: {.cell-output .cell-output-stderr}\n```\nWarning: The `x` argument of `as_tibble.matrix()` must have unique column names if\n`.name_repair` is omitted as of tibble 2.0.0.\nℹ Using compatibility `.name_repair`.\n```\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(ggplot2)\np <- ggplot(volcano_long, aes(X, Y, fill= V)) + \n    geom_tile() +\n    labs(title = \"Volcano\") +\n    theme_void() +\n    theme(legend.position = \"none\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nisaveRDS(p, \"p.rds\", count = 3e3)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nireadRDS(\"p.rds\", count = 8e6)\n```\n\n::: {.cell-output-display}\n![](index_files/figure-html/unnamed-chunk-8-1.png){width=672}\n:::\n:::\n\nLet's spin back and give a short introduction to iRODS.\n\n::: {.cell}\n\n```{.r .cell-code}\nstop_irods_demo()\n```\n:::\n\n\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

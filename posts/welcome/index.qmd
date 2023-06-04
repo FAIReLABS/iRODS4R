@@ -1,0 +1,87 @@
+------------------------------------------------------------------------
+
+---
+title: "Welcome To iRODS4R"
+author: 
+  - "Martin Schobben"
+  - "Mariana Montes"
+  - "Terrell Russell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+categories: [news]
+---
+
+```{r include=FALSE}
+#remotes::install_github("MartinSchobben/irods_client_library_rirods", ref ="dev", force=T, build_opts = "--keep-empty-dirs")
+here::i_am("posts/welcome/index.qmd")
+```
+
+The data that drives our R workflow is just as important
+
+Nevertheless,
+
+There are several data management solutions available for R, mainly trough ,. nonetheless iRODS simplifies storing data as you can store any data type you want. We leveraged this functionality for R in that you can move around and store any R object you like.
+
+Let's have a look this by launching an iRODS demo server, like so:
+
+*Note that one needs Bash and Docker (with docker-compose) to use this mock-up*
+
+```{r}
+library(rirods)
+use_irods_demo("martin", "secret")
+```
+
+```{r eval=FALSE}
+create_irods("http://localhost/irods-rest/0.9.3", "/tempZone/home")
+```
+
+```{r}
+iauth("martin", "secret")
+```
+
+Imagine you just created an amazing R workflow:
+
+```{r}
+# library(tibble)
+# library(tidyr)
+# library(dplyr)
+# 
+# volcano_long <- as_tibble(volcano) |>
+#   rownames_to_column("X") |> 
+#   mutate(X = as.integer(X)) |> 
+#   pivot_longer(
+#     !X,     
+#     cols_vary = "slowest",
+#     names_to = c(".value", "Y"),
+#     names_pattern = "(V)(\\d+)",
+#     names_transform = list(Y = as.integer)
+#   ) 
+
+```
+
+```{r}
+# library(ggplot2)
+# p <- ggplot(volcano_long, aes(X, Y, fill= V)) + 
+#     geom_tile() +
+#     labs(title = "Volcano") +
+#     theme_void() +
+#     theme(legend.position = "none")
+```
+
+```{r}
+isaveRDS(p, "p.rds", count = 3e3)
+```
+
+```{r}
+ireadRDS("p.rds", count = 8e6)
+```
+
+Let's spin back and give a short introduction to iRODS.
+
+```{r}
+stop_irods_demo()
+
+```
+
+```{r include=FALSE}
+# end_vignette()
+```
