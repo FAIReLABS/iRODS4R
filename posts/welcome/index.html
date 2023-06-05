@@ -245,10 +245,13 @@ iauth("martin", "secret")</code></pre>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s have a look at how this looks like within the iRODS server.</p>
-<div class="cell" data-hash="index_cache/html/unnamed-chunk-8_0285786a802f660d2d76f3d9c86ce11a">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ils</span>(<span class="at">metadata=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>This collection does not contain any objects or collections.</code></pre>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       logical_path                          metadata
+1 /tempZone/home/martin/commits.rds dataframe, commit history iRODS, 
+         type
+1 data_object</code></pre>
 </div>
 </div>
 <p>This makes the data discoverable by others on the iRODS server. Hence <code>rirods</code> not only helps you store data, but it also makes sharing data with your peers more straightforward.</p>
@@ -274,12 +277,13 @@ iauth("martin", "secret")</code></pre>
 <p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>Let’s stop the irods demo server and give a short introduction to iRODS.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stop_irods_demo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Let’s spin back and give a short introduction to iRODS.</p>
 <p>The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.</p>
 <p>You can watch these videos to get a better understanding of what iRODS brings to data management.</p>
+<p><br></p>
 
 <table>
 <!-- YOUTUBE-VIDEOS-LIST:START -->
