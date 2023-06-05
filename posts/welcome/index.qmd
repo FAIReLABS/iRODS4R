@@ -9,7 +9,7 @@ date-format: "DD MMMM, YYYY"
 categories: [news]
 ---
 
-The data that drives our R workflow is just as important the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
+The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
 There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package `DBI`. This requires data to be in a tabular format. [iRODS](https://irods.org/) can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS' functionality for R in the new package `rirods`. This means that you can move around and store any R object as you like.
 
@@ -44,7 +44,7 @@ Here comes `rirods` into the picture. Install the package from CRAN or get the d
 install.packages("rirods")
 ```
 
-We will demonstrate `rirods` usage by running a mock server on your localhost.
+We will demonstrate `rirods` usage by running a mock server on your localhost. The username and password are set to `"martin"` and `"secret"` for the example, but can be changed accordingly.
 
 *Note that one needs Bash and Docker (with docker-compose) to use this mock-up.*
 
@@ -85,13 +85,13 @@ imeta("commits.rds",
         ))
 ```
 
-Now let's have a look at how this looks like within the iRODS server.
+Now let's have a look at how this looks like within the iRODS server with `ils()`, which is somewhat similar to base R's `list.files()`.
 
 ```{r}
 ils(metadata=TRUE)
 ```
 
-This makes the data discoverable by others on the iRODS server. Hence `rirods` not only helps you store and find data, but it also makes sharing data with your peers more straightforward.
+This makes the data discoverable on the iRODS server. Hence `rirods` not only helps you store and find data, but it also makes sharing data with your peers more straightforward.
 
 As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors. 
 
@@ -151,3 +151,6 @@ You can watch the videos to get a better understanding of what iRODS brings to d
 <br/>
 
 Or visit iROD's webpage: [https://irods.org/](https://irods.org/).
+
+*The code to generate iRODS GitHUb commit history can be found here [https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R](https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R), and is based on this [blog](https://masalmon.eu/2017/02/21/firstcommit/) by Maëlle Salmon.*
+
