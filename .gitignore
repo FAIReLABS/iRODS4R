@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-.quarto
-_freeze
-
+/_freeze/
 /.quarto/
+/_site/
