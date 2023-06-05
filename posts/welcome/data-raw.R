@@ -73,7 +73,6 @@ get_repos <- function(org) {
 
 irods_repos <- get_repos(org = "irods")
 write_csv(irods_repos, "posts/welcome/data/irods_repos.csv")
-#irods_repos <- read_csv("posts/welcome/data/irods_repos.csv")
 
 get_stargazers <- function(repos_stargazers_url) {
 
@@ -207,3 +206,10 @@ get_commits <- function(repos_commits_url) {
 irods_commits <- get_commits(repos_commits_url = irods_repos$commits_url)
 write_csv(irods_commits, "posts/welcome/data/irods_commits.csv")
 
+# more compact version
+irods_commits <- read_csv("posts/welcome/data/irods_commits.csv")
+irods_repos <- read_csv("posts/welcome/data/irods_repos.csv")
+irods_commits  <- irods_repos |>
+  select(!c(owner, created_at, fork_count, open_issues, watchers_count, stars_url, contributors_url, downloaded_at)) |>
+  left_join(irods_commits ) |> select(!commits_url)
+write_csv(irods_commits, "posts/welcome/data/irods_commits.csv")

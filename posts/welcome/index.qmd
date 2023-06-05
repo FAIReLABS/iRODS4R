@@ -4,7 +4,8 @@ author:
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "`r format(Sys.time(), '%m/%d/%Y')`"
+date: "`r Sys.time()`"
+date-format: "DD MMMM, YYYY"
 categories: [news]
 ---
 
@@ -25,23 +26,19 @@ library(forcats)
 library(ggplot2)
 library(here)
 
-irods_files <- c("irods_repos.csv", "irods_commits.csv")
-pt <- here("posts", "welcome", "data", irods_files)
+commits <- read_csv(here("posts", "welcome", "data", "irods_commits.csv"))
 
-repos <- read_csv(pt[1])
-commits <- read_csv(pt[2])
-
-repos |> 
+commits <- commits |> 
   filter(!fork, !archived, !private) |> 
-  left_join(commits) |> 
   mutate(
     commits_names = fct_lump(commits_names, 10, other_level = "other"),
     commits_names = if_else(is.na(commits_names), "other", commits_names),
     commits_names = fct_infreq(commits_names)
-  ) |> 
-  ggplot(aes(x = commits_names)) + 
-      geom_bar() + 
-      coord_flip()
+  )
+
+ggplot(commits,aes(x = commits_names)) + 
+    geom_bar() + 
+    coord_flip()
 ```
 
 To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.
@@ -66,16 +63,16 @@ iauth("martin", "secret")
 iauth("martin", "secret")
 ```
 
-Now we can save the R object `repos` with `isaveRDS()`, which behaves similar to base R's `saveRDS`.
+Now we can save the R object `commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS`.
 
-```{r, eval=FALSE}
-isaveRDS(repos, "repos.rds")
+```{r}
+isaveRDS(commits, "commits.rds")
 ```
 
 This is not all. You can now also label this data set by adding metadata.
 
-```{r, eval=FALSE}
-imeta("repos.rds",
+```{r}
+imeta("commits.rds",
       "data_object",
       operations =
         list(
@@ -97,20 +94,20 @@ This makes the data discoverable by others on the iRODS server. Hence `rirods` n
 
 As it seems you were not yet done with your analysis of the commit history of iRODS. You put considerable effort in creating an informative plot, which lists commits according to most popular repositories. 
 
-```{r, eval=FALSE}
- plot_commits <- repos_commits |> 
+```{r}
+plot_commits <- commits |> 
   mutate(
     names = if_else(stargazers_count > 10, names, "other")
   ) |> 
     ggplot(aes(x = commits_names, fill = names)) + 
       geom_bar(position = "stack") + 
       coord_flip() +
-      theme(legend.position = "top", legend.title = element_blank())
+      theme(legend.position = "top", legend.title = element_blank(), legend.text=element_text(size = 9))
 ```
 
 This is also no problem for `rirods`, as long as we deal with an R object, we can store it in iRODS.
 
-```{r, eval=FALSE}
+```{r}
 isaveRDS(plot_commits, "plot_commits.rds")
 ```
 
@@ -124,4 +121,23 @@ ireadRDS("plot_commits.rds")
 stop_irods_demo()
 ```
 
-Let's spin back and give a short introduction to iRODS.
+Let's spin back and give a short introduction to iRODS. 
+
+The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.
+
+You can watch these videos to get a better understanding of what iRODS brings to data management.
+
+
+<table>
+
+<!-- YOUTUBE-VIDEOS-LIST:START -->
+
+<tr><td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU"><img width="140px" src="https://i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ"></a></td>
+<td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU"> Automated Data Management: An Introduction to iRODS </a><br/></td></tr>
+
+<tr><td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8"><img width="140px" src="https://i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA"></a></td><td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8"> iRODS: open source data management software </a><br/></td></tr>
+
+<!-- YOUTUBE-VIDEOS-LIST:END -->
+
+
+</table>
