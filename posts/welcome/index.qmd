@@ -11,7 +11,7 @@ categories: [news]
 
 The data that drives our R workflow is just as important the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
-There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package `DBI`. Nonetheless [iRODS](https://irods.org/) can simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS' functionality for R with `rirods`. This means that you can move around and store any R object as you like.
+There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package `DBI`. [iRODS](https://irods.org/) can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS' functionality for R with `rirods`. This means that you can move around and store any R object as you like.
 
 Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.
 
@@ -36,9 +36,15 @@ ggplot(commits,aes(x = commits_names)) +
     coord_flip()
 ```
 
-To reproduce this new dataset we could ofcourse rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.
+To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.
 
-Here comes `rirods` into the picture. We will demonstrate `rirods` usage by running a mock server on your localhost.
+Here comes `rirods` into the picture. Install the package from CRAN or get the development version from GitHub: [https://github.com/irods/irods_client_library_rirods](https://github.com/irods/irods_client_library_rirods).
+
+```{r eval=FALSE}
+install.packages("rirods")
+```
+
+We will demonstrate `rirods` usage by running a mock server on your localhost.
 
 *Note that one needs Bash and Docker (with docker-compose) to use this mock-up.*
 
@@ -64,7 +70,7 @@ Now we can save the R object `commits` with `isaveRDS()`, which behaves similar 
 isaveRDS(commits, "commits.rds")
 ```
 
-This is not all. You can now also label this dataset by adding metadata.
+This is not all. You can now also label this data set by adding metadata.
 
 ```{r}
 imeta("commits.rds",
@@ -85,7 +91,7 @@ Now let's have a look at how this looks like within the iRODS server.
 ils(metadata=TRUE)
 ```
 
-This makes the data discoverable by others on the iRODS server. Hence `rirods` not only helps you store data, but it also makes sharing data with your peers more straightforward.
+This makes the data discoverable by others on the iRODS server. Hence `rirods` not only helps you store and find data, but it also makes sharing data with your peers more straightforward.
 
 As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors. 
 
@@ -124,7 +130,7 @@ stop_irods_demo()
 
 The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.
 
-You can watch these videos to get a better understanding of what iRODS brings to data management.
+You can watch the videos to get a better understanding of what iRODS brings to data management.
 
 <br/>
 
@@ -141,3 +147,7 @@ You can watch these videos to get a better understanding of what iRODS brings to
 
 
 </table>
+
+<br/>
+
+Or visit iROD's webpage: [https://irods.org/](https://irods.org/).
