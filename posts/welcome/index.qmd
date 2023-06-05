@@ -1,5 +1,3 @@
-------------------------------------------------------------------------
-
 ---
 title: "Welcome To iRODS4R"
 author: 
@@ -10,78 +8,122 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 categories: [news]
 ---
 
-```{r include=FALSE}
+```{r, include=FALSE}
 #remotes::install_github("MartinSchobben/irods_client_library_rirods", ref ="dev", force=T, build_opts = "--keep-empty-dirs")
-here::i_am("posts/welcome/index.qmd")
+library(here)
+i_am("posts/welcome/index.qmd")
 ```
 
-The data that drives our R workflow is just as important
+The data that drives our R workflow is just as important the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
-Nevertheless,
+There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package `DBI`. Nonetheless [iRODS](https://irods.org/) can simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged this iRODS' functionality for R with `rirods`. This means that you can move around and store any R object as you like. 
 
-There are several data management solutions available for R, mainly trough ,. nonetheless iRODS simplifies storing data as you can store any data type you want. We leveraged this functionality for R in that you can move around and store any R object you like.
+Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.
 
-Let's have a look this by launching an iRODS demo server, like so:
+```{r message=FALSE}
+library(readr)
+library(dplyr)
+library(forcats)
+library(ggplot2)
 
-*Note that one needs Bash and Docker (with docker-compose) to use this mock-up*
+irods_files <- c("irods_repos.csv", "irods_commits.csv")
+pt <- here("posts", "welcome", "data", irods_files)
+
+repos <- read_csv(pt[1], show_col_types = FALSE)
+commits <- read_csv(pt[2], show_col_types = FALSE)
+
+repos_commits <- repos |> 
+  filter(!fork, !archived, !private) |> 
+  left_join(commits) |> 
+  mutate(
+    commits_names = fct_lump(commits_names, 10, other_level = "other"),
+    commits_names = if_else(is.na(commits_names), "other", commits_names),
+    commits_names = fct_infreq(commits_names)
+  )
+
+ggplot(repos_commits, aes(x = commits_names)) + 
+      geom_bar() + 
+      coord_flip()
+```
+
+To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system. 
+
+Here comes `rirods` into the picture. We will demonstrate this with a mock server on your localhost.
+
+*Note that one needs Bash and Docker (with docker-compose) to use this mock-up.*
 
 ```{r}
 library(rirods)
 use_irods_demo("martin", "secret")
 ```
 
+We follow the instruction from the output and create a project file with the server details and login to the system with our credentials.
+
 ```{r eval=FALSE}
 create_irods("http://localhost/irods-rest/0.9.3", "/tempZone/home")
-```
-
-```{r}
 iauth("martin", "secret")
 ```
 
-Imagine you just created an amazing R workflow:
-
-```{r}
-# library(tibble)
-# library(tidyr)
-# library(dplyr)
-# 
-# volcano_long <- as_tibble(volcano) |>
-#   rownames_to_column("X") |> 
-#   mutate(X = as.integer(X)) |> 
-#   pivot_longer(
-#     !X,     
-#     cols_vary = "slowest",
-#     names_to = c(".value", "Y"),
-#     names_pattern = "(V)(\\d+)",
-#     names_transform = list(Y = as.integer)
-#   ) 
-
+```{r echo=FALSE}
+iauth("martin", "secret")
 ```
 
-```{r}
-# library(ggplot2)
-# p <- ggplot(volcano_long, aes(X, Y, fill= V)) + 
-#     geom_tile() +
-#     labs(title = "Volcano") +
-#     theme_void() +
-#     theme(legend.position = "none")
+Now we can save the R object `repos_commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS`.
+
+```{r, eval=FALSE}
+isaveRDS(repos_commits, "repos_commits.rds")
 ```
 
-```{r}
-isaveRDS(p, "p.rds", count = 3e3)
+```{r, eval=FALSE, echo=FALSE}
+isaveRDS(repos_commits, "repos_commits.rds", overwrite = TRUE)
 ```
 
+This is not all. You can now also label this data set by adding metadata.
+
 ```{r}
-ireadRDS("p.rds", count = 8e6)
+imeta(
+ "repos_commits.rds",
+ "data_object",
+ operations =
+  list(
+   list(operation = "add", attribute = "dataframe", value = "commit history iRODS", units = "counts")
+ )
+)
+
+# look at the metadata
+ils(metadata=TRUE)
+```
+
+This makes the data discoverable by others on the iRODS server. Hence `rirods` not only helps you store data, but it also makes sharing data with your peers more straightforward.
+
+As it seems you were not yet done with your analysis of the commit history of iRODS. You put considerable effort in creating an informative plot, which lists commits according to most popular repositories. This is also no problem for `rirods`.
+
+```{r, eval=FALSE}
+ plot_commits <- repos_commits |> 
+  mutate(
+    names = if_else(stargazers_count > 10, names, "other")
+  ) |> 
+    ggplot(aes(x = commits_names, fill = names)) + 
+      geom_bar(position = "stack") + 
+      coord_flip() +
+      theme(legend.position = "top", legend.title = element_blank())
+
+isaveRDS(plot_commits, "plot_commits.rds")
+```
+
+```{r, eval=FALSE, echo=FALSE}
+isaveRDS(plot_commits, "plot_commits.rds", overwrite = TRUE)
+```
+
+We can then read it back directly in an R environment.
+
+```{r, cache=TRUE}
+ireadRDS("plot_commits.rds")
+```
+
+
+```{r}
+#stop_irods_demo()
 ```
 
 Let's spin back and give a short introduction to iRODS.
-
-```{r}
-stop_irods_demo()
-
-```
-
-```{r include=FALSE}
-# end_vignette()
-```
