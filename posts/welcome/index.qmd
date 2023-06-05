@@ -37,7 +37,7 @@ ggplot(commits,aes(x = commits_names)) +
 
 To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.
 
-Here comes `rirods` into the picture. Install the package from CRAN or get the development version from GitHub: [https://github.com/irods/irods_client_library_rirods](https://github.com/irods/irods_client_library_rirods).
+Here comes `rirods` into the picture. Install the package from CRAN or get the development version from [GitHub](https://github.com/irods/irods_client_library_rirods).
 
 ```{r eval=FALSE}
 install.packages("rirods")
@@ -151,5 +151,5 @@ You can watch the videos to get a better understanding of what iRODS brings to d
 
 Or visit iROD's webpage: [https://irods.org/](https://irods.org/).
 
-*The code to generate iRODS GitHUb commit history can be found here [https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R](https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R), and is based on this [blog](https://masalmon.eu/2017/02/21/firstcommit/) by Maëlle Salmon.*
+*The code to generate iRODS GitHUb commit history can be found [here](https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R), and is based on this [blog](https://masalmon.eu/2017/02/21/firstcommit/) by Maëlle Salmon.*
 
