@@ -183,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>The data that drives our R workflow is just as important the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.</p>
-<p>There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package <code>DBI</code>. <a href="https://irods.org/">iRODS</a> can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS’ functionality for R with <code>rirods</code>. This means that you can move around and store any R object as you like.</p>
+<p>There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package <code>DBI</code>. This requires data to be in a tabular format. <a href="https://irods.org/">iRODS</a> can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS’ functionality for R in the new package <code>rirods</code>. This means that you can move around and store any R object as you like.</p>
 <p>Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
