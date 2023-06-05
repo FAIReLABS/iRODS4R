@@ -2,7 +2,7 @@
 title: "About"
 image: iRODS-logo.png
 about:
-  template: jolla
+  template: marquee
   links:
     - icon: twitter
       text: Twitter
@@ -14,5 +14,3 @@ about:
       text: Github
       href: https://github.com/FAIReLABS/iRODS4R
 ---
-
-About this blog

@@ -4,8 +4,8 @@ author:
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "`r Sys.time()`"
-date-format: "DD MMMM, YYYY"
+date: "06/16/2023"
+date-format: long
 categories: [news]
 ---
 
