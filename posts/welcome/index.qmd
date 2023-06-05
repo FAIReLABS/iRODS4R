@@ -9,10 +9,6 @@ date-format: "DD MMMM, YYYY"
 categories: [news]
 ---
 
-```{r, include=FALSE}
-here::i_am("posts/welcome/index.qmd")
-```
-
 The data that drives our R workflow is just as important the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
 There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package `DBI`. Nonetheless [iRODS](https://irods.org/) can simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS' functionality for R with `rirods`. This means that you can move around and store any R object as you like.
@@ -24,9 +20,8 @@ library(readr)
 library(dplyr)
 library(forcats)
 library(ggplot2)
-library(here)
 
-commits <- read_csv(here("posts", "welcome", "data", "irods_commits.csv"))
+commits <- read_csv("https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/welcome/data/irods_commits.csv")
 
 commits <- commits |> 
   filter(!fork, !archived, !private) |> 
@@ -41,9 +36,9 @@ ggplot(commits,aes(x = commits_names)) +
     coord_flip()
 ```
 
-To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.
+To reproduce this new dataset we could ofcourse rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.
 
-Here comes `rirods` into the picture. We will demonstrate `rirods` usage with a mock server on your localhost.
+Here comes `rirods` into the picture. We will demonstrate `rirods` usage by running a mock server on your localhost.
 
 *Note that one needs Bash and Docker (with docker-compose) to use this mock-up.*
 
@@ -52,7 +47,7 @@ library(rirods)
 use_irods_demo("martin", "secret")
 ```
 
-We follow the instruction from the output and create a project file with the server details and login to the system with our credentials.
+We follow the instructions from the output and create a project file with the server details and login to the system with our credentials.
 
 ```{r eval=FALSE}
 create_irods("http://localhost/irods-rest/0.9.3", "/tempZone/home")
@@ -63,13 +58,13 @@ iauth("martin", "secret")
 iauth("martin", "secret")
 ```
 
-Now we can save the R object `commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS`.
+Now we can save the R object `commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS()`.
 
 ```{r}
 isaveRDS(commits, "commits.rds")
 ```
 
-This is not all. You can now also label this data set by adding metadata.
+This is not all. You can now also label this dataset by adding metadata.
 
 ```{r}
 imeta("commits.rds",
@@ -92,7 +87,7 @@ ils(metadata=TRUE)
 
 This makes the data discoverable by others on the iRODS server. Hence `rirods` not only helps you store data, but it also makes sharing data with your peers more straightforward.
 
-As it seems you were not yet done with your analysis of the commit history of iRODS. You put considerable effort in creating an informative plot, which lists commits according to most popular repositories. 
+As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors. 
 
 ```{r}
 plot_commits <- commits |>
@@ -103,7 +98,7 @@ plot_commits <- commits |>
     theme(
       legend.position = "top",
       legend.title = element_blank(),
-      legend.key.size = unit(3, "point"),
+      legend.key.size = unit(4, "point"),
       legend.text = element_text(size = 7)
     )
 ```
@@ -114,13 +109,13 @@ This is also no problem for `rirods`, as long as we deal with an R object, we ca
 isaveRDS(plot_commits, "plot_commits.rds")
 ```
 
-We can then  directly read it back in an R environment.
+Later on we can directly get the object back in an R environment, thereby plotting the results.
 
 ```{r, cache=TRUE}
 ireadRDS("plot_commits.rds")
 ```
 
-Let's stop the irods demo server and give a short introduction to iRODS. 
+Let's terminate the iRODS demo server and give a short introduction to iRODS. 
 
 ```{r}
 stop_irods_demo()
