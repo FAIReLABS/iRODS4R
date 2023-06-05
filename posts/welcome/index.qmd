@@ -24,10 +24,9 @@ library(ggplot2)
 commits <- read_csv("https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/welcome/data/irods_commits.csv")
 
 commits <- commits |> 
-  filter(!fork, !archived, !private) |> 
+  filter(!fork, !archived, !private, !is.na(commits_names)) |> 
   mutate(
-    commits_names = fct_lump(commits_names, 10, other_level = "other"),
-    commits_names = if_else(is.na(commits_names), "other", commits_names),
+    commits_names = fct_lump(commits_names, 10),
     commits_names = fct_infreq(commits_names)
   )
 
