@@ -114,7 +114,7 @@ This is also no problem for `rirods`, as long as we deal with an R object, we ca
 isaveRDS(plot_commits, "plot_commits.rds")
 ```
 
-We can then read it back directly in an R environment.
+We can then  directly read it back in an R environment.
 
 ```{r, cache=TRUE}
 ireadRDS("plot_commits.rds")
