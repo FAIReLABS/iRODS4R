@@ -1,6 +1,6 @@
 ---
 title: "About"
-image: profile.jpg
+image: iRODS-logo.png
 about:
   template: jolla
   links:
@@ -12,8 +12,7 @@ about:
       href: https://linkedin.com
     - icon: github
       text: Github
-      href: https://github.com
-
+      href: https://github.com/FAIReLABS/iRODS4R
 ---
 
 About this blog
