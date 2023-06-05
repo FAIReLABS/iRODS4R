@@ -1,3 +1,10 @@
+base
+methods
+utils
+datasets
+grDevices
+graphics
+stats
 readr
 dplyr
 forcats

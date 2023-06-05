@@ -86,7 +86,7 @@ imeta("commits.rds",
 
 Now let's have a look at how this looks like within the iRODS server.
 
-```{r, cache=TRUE}
+```{r}
 ils(metadata=TRUE)
 ```
 
@@ -95,14 +95,17 @@ This makes the data discoverable by others on the iRODS server. Hence `rirods` n
 As it seems you were not yet done with your analysis of the commit history of iRODS. You put considerable effort in creating an informative plot, which lists commits according to most popular repositories. 
 
 ```{r}
-plot_commits <- commits |> 
-  mutate(
-    names = if_else(stargazers_count > 10, names, "other")
-  ) |> 
-    ggplot(aes(x = commits_names, fill = names)) + 
-      geom_bar(position = "stack") + 
-      coord_flip() +
-      theme(legend.position = "top", legend.title = element_blank(), legend.text=element_text(size = 9))
+plot_commits <- commits |>
+  mutate(names = if_else(stargazers_count > 10, names, "other")) |>
+  ggplot(aes(x = commits_names, fill = names)) +
+    geom_bar(position = "stack") +
+    coord_flip() +
+    theme(
+      legend.position = "top",
+      legend.title = element_blank(),
+      legend.key.size = unit(3, "point"),
+      legend.text = element_text(size = 7)
+    )
 ```
 
 This is also no problem for `rirods`, as long as we deal with an R object, we can store it in iRODS.
@@ -117,16 +120,18 @@ We can then  directly read it back in an R environment.
 ireadRDS("plot_commits.rds")
 ```
 
+Let's stop the irods demo server and give a short introduction to iRODS. 
+
 ```{r}
 stop_irods_demo()
 ```
 
-Let's spin back and give a short introduction to iRODS. 
 
 The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.
 
 You can watch these videos to get a better understanding of what iRODS brings to data management.
 
+<br/>
 
 <table>
 
