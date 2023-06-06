@@ -88,7 +88,7 @@ imeta("commits.rds",
 Now let's have a look at how this looks like within the iRODS server with `ils()`, which is somewhat similar to base R's `list.files()`.
 
 ```{r}
-ils(metadata=TRUE)
+ils(metadata = TRUE)
 ```
 
 This makes the data discoverable on the iRODS server. Hence `rirods` not only helps you store and find data, but it also makes sharing data with your peers more straightforward.
@@ -98,15 +98,15 @@ As it seems you were not yet done with your analysis of the iRODS commit history
 ```{r}
 plot_commits <- commits |>
   mutate(names = if_else(stargazers_count > 10, names, "other")) |>
-  ggplot(aes(x = commits_names, fill = names)) +
-    geom_bar(position = "stack") +
-    coord_flip() +
-    theme(
-      legend.position = "top",
-      legend.title = element_blank(),
-      legend.key.size = unit(4, "point"),
-      legend.text = element_text(size = 7)
-    )
+    ggplot(aes(x = commits_names, fill = names)) +
+      geom_bar(position = "stack") +
+      coord_flip() +
+      theme(
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.key.size = unit(4, "point"),
+        legend.text = element_text(size = 7)
+      )
 ```
 
 This is also no problem for `rirods`, as long as we deal with an R object, we can store it in iRODS.
