@@ -8,7 +8,7 @@ listing:
   sort-ui: false
   filter-ui: false
   date-format: long
-  image-placeholder: "iRODS-logo.png"
+  #image-placeholder: "iRODS-logo.png"
 page-layout: full
 title-block-banner: true
 ---
