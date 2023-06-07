@@ -1,1 +1,1 @@
-Sitemap: https://github.com/FAIReLABS/iRODS4R/sitemap.xml
+Sitemap: https://FAIReLABS.github.io/iRODS4R/sitemap.xml
