@@ -78,9 +78,14 @@ imeta("commits.rds",
         list(
           list(
             operation = "add",
-            attribute = "R object",
-            value = "commit history iRODS",
-            units = "data.frame"
+            attribute = "content",
+            value = "commit history iRODS"
+          ),
+          list(
+            operation = "add",
+            attribute = "file_type",
+            value = "R object",
+            units = "RDS"
           )
         ))
 ```
