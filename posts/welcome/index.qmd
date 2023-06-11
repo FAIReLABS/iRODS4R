@@ -155,7 +155,7 @@ You can watch the videos to get a better understanding of what iRODS brings to d
 
 <br/>
 
-Or visit iROD's webpage: [https://irods.org/](https://irods.org/).
+Or visit the iRODS website: [https://irods.org/](https://irods.org/).
 
-*The code to generate iRODS GitHUb commit history can be found [here](https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R), and is based on this [blog](https://masalmon.eu/2017/02/21/firstcommit/) by Maëlle Salmon.*
+*The code to generate iRODS GitHub commit history can be found [here](https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R), and is based on this [blog](https://masalmon.eu/2017/02/21/firstcommit/) by Maëlle Salmon.*
 
