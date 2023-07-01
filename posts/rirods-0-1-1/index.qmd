@@ -1,5 +1,6 @@
 ---
-title: "Welcome To iRODS4R"
+title: "Care about FAIR"
+subtitle: "First release of rirods"
 author: 
   - "Martin Schobben"
   - "Mariana Montes"
@@ -21,7 +22,7 @@ library(dplyr)
 library(forcats)
 library(ggplot2)
 
-commits <- read_csv("https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/welcome/data/irods_commits.csv")
+commits <- read_csv("https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/rirods-0-1-1/data/irods_commits.csv")
 
 commits <- commits |> 
   filter(!fork, !archived, !private, !is.na(commits_names)) |> 
