@@ -4,7 +4,7 @@ author:
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "06/16/2023"
+date: "07/03/2023"
 date-format: long
 categories: [news]
 ---
@@ -54,12 +54,8 @@ use_irods_demo("martin", "secret")
 
 We follow the instructions from the output and create a project file with the server details and login to the system with our credentials.
 
-```{r eval=FALSE}
+```{r}
 create_irods("http://localhost/irods-rest/0.9.3", "/tempZone/home")
-iauth("martin", "secret")
-```
-
-```{r echo=FALSE}
 iauth("martin", "secret")
 ```
 
@@ -98,7 +94,7 @@ ils(metadata = TRUE)
 
 This makes the data discoverable on the iRODS server. Hence `rirods` not only helps you store and find data, but it also makes sharing data with your peers more straightforward.
 
-As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors. 
+As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors.
 
 ```{r}
 plot_commits <- commits |>
@@ -126,12 +122,11 @@ Later on we can directly get the object back in an R environment, thereby plotti
 ireadRDS("plot_commits.rds")
 ```
 
-Let's terminate the iRODS demo server and give a short introduction to iRODS. 
+Let's terminate the iRODS demo server and give a short introduction to iRODS.
 
 ```{r}
 stop_irods_demo()
 ```
-
 
 The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.
 
@@ -139,23 +134,14 @@ You can watch the videos to get a better understanding of what iRODS brings to d
 
 <br/>
 
-<table>
-
-<!-- YOUTUBE-VIDEOS-LIST:START -->
-
-<tr><td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU"><img width="140px" src="https://i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ"></a></td>
-<td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU"> Automated Data Management: An Introduction to iRODS </a><br/></td></tr>
-
-<tr><td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8"><img width="140px" src="https://i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA"></a></td><td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8"> iRODS: open source data management software </a><br/></td></tr>
-
-<!-- YOUTUBE-VIDEOS-LIST:END -->
-
-
-</table>
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+
+| [![](https://i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ)](https://www.youtube.com/watch?v=_5eVd3NJ5BU) | [Automated Data Management: An Introduction to iRODS ](https://www.youtube.com/watch?v=_5eVd3NJ5BU)\ |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+
+| [![](https://i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA)](https://www.youtube.com/watch?v=05MqDxq9DJ8) | [iRODS: open source data management software ](https://www.youtube.com/watch?v=05MqDxq9DJ8)\         |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+
 
 <br/>
 
-Or visit the iRODS website: [https://irods.org/](https://irods.org/).
+Or visit the iRODS website: <https://irods.org/>.
 
 *The code to generate iRODS GitHub commit history can be found [here](https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R), and is based on this [blog](https://masalmon.eu/2017/02/21/firstcommit/) by Maëlle Salmon.*
-
