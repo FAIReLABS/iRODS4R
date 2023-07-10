@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>iRODS4R</title>
+<link>https://fairelabs.github.io/iRODS4R/index.html#category=news</link>
+<atom:link href="https://fairelabs.github.io/iRODS4R/index-news.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<generator>quarto-1.3.361</generator>
+<lastBuildDate>Mon, 10 Jul 2023 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Care about FAIR</title>
+  <dc:creator>Martin Schobben</dc:creator>
+  <dc:creator>Mariana Montes</dc:creator>
+  <dc:creator>Terrell Russell</dc:creator>
+  <link>https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.</p>
+<p>There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package <code>DBI</code>. This requires data to be in a tabular format. <a href="https://irods.org/">iRODS</a> can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS’ functionality for R in the new package <code>rirods</code>. This means that you can move around and store any R object as you like.</p>
+<p>Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(readr)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(forcats)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6">commits <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/rirods-0-1-1/data/irods_commits.csv"</span>)</span>
+<span id="cb1-7"></span>
+<span id="cb1-8">commits <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> commits <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>fork, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>archived, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>private, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(commits_names)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb1-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">commits_names =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fct_lump</span>(commits_names, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>),</span>
+<span id="cb1-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">commits_names =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fct_infreq</span>(commits_names)</span>
+<span id="cb1-13">  )</span>
+<span id="cb1-14"></span>
+<span id="cb1-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(commits,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> commits_names)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb1-16">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_bar</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb1-17">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_flip</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.</p>
+<p>Here comes <code>rirods</code> into the picture. Install the package from CRAN or get the development version from <a href="https://github.com/irods/irods_client_library_rirods">GitHub</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rirods"</span>)</span></code></pre></div>
+</div>
+<p>We will demonstrate <code>rirods</code> usage by running a mock server on your localhost. The username and password are set to <code>"martin"</code> and <code>"secret"</code> for the example, but can be changed accordingly.</p>
+<p><em>Note that one needs Bash and Docker (with docker-compose) to use this mock-up.</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(rirods)</span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">use_irods_demo</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"martin"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"secret"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Do the following to connect with the iRODS demo server: 
+create_irods("http://localhost/irods-rest/0.9.3", "/tempZone/home") 
+iauth("martin", "secret")</code></pre>
+</div>
+</div>
+<p>We follow the instructions from the output and create a project file with the server details and login to the system with our credentials.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">create_irods</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"http://localhost/irods-rest/0.9.3"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/tempZone/home"</span>)</span>
+<span id="cb5-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">iauth</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"martin"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"secret"</span>)</span></code></pre></div>
+</div>
+<p>Now we can save the R object <code>commits</code> with <code>isaveRDS()</code>, which behaves similar to base R’s <code>saveRDS()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">isaveRDS</span>(commits, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"commits.rds"</span>)</span></code></pre></div>
+</div>
+<p>This is not all. You can now also label this data set by adding metadata.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">imeta</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"commits.rds"</span>,</span>
+<span id="cb7-2">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data_object"</span>,</span>
+<span id="cb7-3">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">operations =</span></span>
+<span id="cb7-4">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb7-5">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb7-6">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">operation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"add"</span>,</span>
+<span id="cb7-7">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">attribute =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"content"</span>,</span>
+<span id="cb7-8">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"commit history iRODS"</span></span>
+<span id="cb7-9">          ),</span>
+<span id="cb7-10">          <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb7-11">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">operation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"add"</span>,</span>
+<span id="cb7-12">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">attribute =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"file_type"</span>,</span>
+<span id="cb7-13">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R object"</span>,</span>
+<span id="cb7-14">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RDS"</span></span>
+<span id="cb7-15">          )</span>
+<span id="cb7-16">        ))</span></code></pre></div>
+</div>
+<p>Now let’s have a look at how this looks like within the iRODS server with <code>ils()</code>, which is somewhat similar to base R’s <code>list.files()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ils</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">metadata =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+========
+metadata
+========
+/tempZone/home/martin/commits.rds :
+ attribute                value units
+   content commit history iRODS      
+ file_type             R object   RDS
+
+
+==========
+iRODS Zone
+==========
+                      logical_path        type
+ /tempZone/home/martin/commits.rds data_object</code></pre>
+</div>
+</div>
+<p>This makes the data discoverable on the iRODS server. Hence <code>rirods</code> not only helps you store and find data, but it also makes sharing data with your peers more straightforward.</p>
+<p>As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">plot_commits <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> commits <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb10-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">if_else</span>(stargazers_count <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, names, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"other"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb10-3">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> commits_names, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> names)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-4">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_bar</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"stack"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-5">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-6">      <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb10-7">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"top"</span>,</span>
+<span id="cb10-8">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb10-9">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.key.size =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"point"</span>),</span>
+<span id="cb10-10">        <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>)</span>
+<span id="cb10-11">      )</span></code></pre></div>
+</div>
+<p>This is also no problem for <code>rirods</code>, as long as we deal with an R object, we can store it in iRODS.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">isaveRDS</span>(plot_commits, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plot_commits.rds"</span>)</span></code></pre></div>
+</div>
+<p>Later on we can directly get the object back in an R environment, thereby plotting the results.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-10_27ec595819cc6b0deee903d9813edca4">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ireadRDS</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plot_commits.rds"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Let’s terminate the iRODS demo server and give a short introduction to iRODS.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stop_irods_demo</span>()</span></code></pre></div>
+</div>
+<p>The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.</p>
+<p>You can watch the videos to get a better understanding of what iRODS brings to data management.</p>
+<p><br></p>
+<table class="table">
+<tbody>
+<tr class="odd">
+<td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU"><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/https:/i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&amp;rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ" class="img-fluid"></a></td>
+<td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU">Automated Data Management: An Introduction to iRODS</a><br>
+</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8"><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/https:/i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&amp;rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA" class="img-fluid"></a></td>
+<td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8">iRODS: open source data management software</a><br>
+</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p>Or visit the iRODS website: <a href="https://irods.org/" class="uri">https://irods.org/</a>.</p>
+<p><em>The code to generate iRODS GitHub commit history can be found <a href="https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R">here</a>, and is based on this <a href="https://masalmon.eu/2017/02/21/firstcommit/">blog</a> by Maëlle Salmon.</em></p>
+
+
+
+ ]]></description>
+  <category>news</category>
+  <category>R</category>
+  <guid>https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index.html</guid>
+  <pubDate>Mon, 10 Jul 2023 22:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>
