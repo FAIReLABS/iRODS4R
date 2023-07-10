@@ -8,6 +8,9 @@ listing:
   sort-ui: false
   filter-ui: false
   date-format: long
+  feed:
+    type: full
+    categories: [R, news, iRODS, FAIR]
   #image-placeholder: "iRODS-logo.png"
 page-layout: full
 title-block-banner: true
