@@ -7,7 +7,7 @@ author:
   - "Terrell Russell"
 date: "07/11/2023"
 date-format: long
-categories: [R, news, FAIR]
+categories: [news, R]
 ---
 
 The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.

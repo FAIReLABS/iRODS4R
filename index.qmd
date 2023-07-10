@@ -10,7 +10,7 @@ listing:
   date-format: long
   feed:
     type: full
-    categories: [R, news, iRODS, FAIR]
+    categories: [news, iRODS, R]
   #image-placeholder: "iRODS-logo.png"
 page-layout: full
 title-block-banner: true
