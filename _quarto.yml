@@ -13,7 +13,7 @@ website:
         href: https://twitter.com/irods
       - icon: rss
         href: index.xml
-      - text: r-bloggers
+      - text: R-bloggers
         href: https://www.r-bloggers.com
 format:
   html:
