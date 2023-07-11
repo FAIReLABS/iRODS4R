@@ -20,7 +20,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -128,9 +147,28 @@ ul.task-list li input[type="checkbox"] {
 <div class="quarto-title-meta">
   </div>
 </header> <main class="content" id="quarto-document-content">
+<p>One of the biggest problems in research is the inadvertent destruction of data and the inaccessibility of data due to poor labeling and description of data. This loss of data means that studies cannot be replicated, combined or re-used in different settings <span class="citation" data-cites="Briney2015 Wilkinson2016">(<a href="#ref-Briney2015" role="doc-biblioref">Briney 2015</a>; <a href="#ref-Wilkinson2016" role="doc-biblioref">Wilkinson et al. 2016</a>)</span>. Data management becomes more important, but also more challenging, in the age of rapid digital data production. The Integrated Rule-Oriented Data System (<a href="https://irods.org/">iRODS</a>) <span class="citation" data-cites="Rajasekar2010 Rajasekar2015">(<a href="#ref-Rajasekar2010" role="doc-biblioref">Rajasekar et al. 2010</a>, <a href="#ref-Rajasekar2015" role="doc-biblioref">2015</a>)</span> is an open sourced data management software suite that offers a solution to this demand, which encompasses the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.</p>
+<p>Nonetheless, the learning curve of how to implement iRODS effectively for day-to-day data management purposes can be steep for the average scientist. Hence there have been multiple incentives to lower this barrier by hiding parts of the behind-the-scenes business logic which requires considerable knowledge of command line tools. Highly popular among academics are higher level programming languages, such as R, that can help construct such data analyses workflows. The R package <em>rirods</em> <span class="citation" data-cites="rirods">(<a href="#ref-rirods" role="doc-biblioref">Schobben and Montes 2023</a>)</span> leverages iRODS in R. This packages allows straightforward integration of data management practices in the R environment, thereby ensuring the findability, accessibility, interoperability, and reusability (FAIR) of data.</p>
 
 
-</main> 
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Briney2015" class="csl-entry" role="listitem">
+Briney, Kristin. 2015. <em>Data Management for Researchers: Organize, Maintain and Share Your Data for Research Success</em>. Pelagic Publishing Ltd.
+</div>
+<div id="ref-Rajasekar2010" class="csl-entry" role="listitem">
+Rajasekar, Arcot, Reagan Moore, Chien-Yi Hou, Christopher A. Lee, Richard Marciano, Antoine de Torcy, Michael Wan, et al. 2010. <span>“<span class="nocase">iRODS Primer: Integrated Rule-Oriented Data System</span>.”</span> <em>Synthesis Lectures on Information Concepts, Retrieval, and Services</em> 2 (1): 1–143. <a href="https://doi.org/10.2200/s00233ed1v01y200912icr012">https://doi.org/10.2200/s00233ed1v01y200912icr012</a>.
+</div>
+<div id="ref-Rajasekar2015" class="csl-entry" role="listitem">
+Rajasekar, Arcot, Terrell Russell, Jason Coposky, Antoine de Torcy, Hao Xu, Michael Wan, Reagan W. Moore, et al. 2015. <em><span class="nocase">The integrated Rule-Oriented Data System (iRODS 3.0) Micro-service Workbook</span></em>.
+</div>
+<div id="ref-rirods" class="csl-entry" role="listitem">
+Schobben, Martin, and Mariana Montes. 2023. <em>Rirods: R Client for iRODS</em>. <a href="https://github.com/irods/irods_client_library_rirods">https://github.com/irods/irods_client_library_rirods</a>.
+</div>
+<div id="ref-Wilkinson2016" class="csl-entry" role="listitem">
+Wilkinson, Mark D, Michel Dumontier, IJsbrand Jan Aalbersberg, Gabrielle Appleton, Myles Axton, Arie Baak, Niklas Blomberg, et al. 2016. <span>“<span class="nocase">Comment: The FAIR Guiding Principles for scientific data management and stewardship</span>.”</span> <em>Scientific Data</em> 3: 1–9. <a href="https://doi.org/10.1038/sdata.2016.18">https://doi.org/10.1038/sdata.2016.18</a>.
+</div>
+</div></section></div></main> 
     <div class="about-footer"><div class="about-links">
   <a href="https://twitter.com/irods" class="about-link" rel="" target="">
     <i class="bi bi-twitter"></i>
