@@ -6,8 +6,8 @@
       version="2.0">
 <channel>
 <title>iRODS4R</title>
-<link>https://fairelabs.github.io/iRODS4R/index.html#category=R</link>
-<atom:link href="https://fairelabs.github.io/iRODS4R/index-r.xml" rel="self" type="application/rss+xml"/>
+<link>https://fairelabs.github.io/iRODS4R/index.html#category=FAIR</link>
+<atom:link href="https://fairelabs.github.io/iRODS4R/index-fair.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.3.361</generator>
 <lastBuildDate>Mon, 10 Jul 2023 22:00:00 GMT</lastBuildDate>
