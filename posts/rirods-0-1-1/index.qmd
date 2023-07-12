@@ -10,6 +10,8 @@ date-format: long
 categories: [news, R, FAIR, open science]
 ---
 
+*This article is about the first release of rirods (see the [documentation](https://irods.github.io/irods_client_library_rirods/)).*
+
 The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
 There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package `DBI`. This requires data to be in a tabular format. [iRODS](https://irods.org/) can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS' functionality for R in the new package `rirods`. This means that you can move around and store any R object as you like.
