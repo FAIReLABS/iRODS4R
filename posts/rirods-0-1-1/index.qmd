@@ -5,12 +5,12 @@ author:
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "07/11/2023"
+date: "07/08/2023"
 date-format: long
 categories: [news, R, FAIR, open science]
 ---
 
-*This article is about the first release of rirods (see the [documentation](https://irods.github.io/irods_client_library_rirods/)).*
+*This article is about the first release of rirods (see the [documentation](http://irods4r.org)).*
 
 The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
@@ -137,11 +137,11 @@ You can watch the videos to get a better understanding of what iRODS brings to d
 
 <br/>
 
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| [![](https://i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ)](https://www.youtube.com/watch?v=_5eVd3NJ5BU) | [Automated Data Management: An Introduction to iRODS ](https://www.youtube.com/watch?v=_5eVd3NJ5BU)\ |
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| [![](https://i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA)](https://www.youtube.com/watch?v=05MqDxq9DJ8) | [iRODS: open source data management software ](https://www.youtube.com/watch?v=05MqDxq9DJ8)\         |
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| [![](https://i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ)](https://www.youtube.com/watch?v=_5eVd3NJ5BU) | [Automated Data Management: An Introduction to iRODS](https://www.youtube.com/watch?v=_5eVd3NJ5BU)\ |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
+| [![](https://i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA)](https://www.youtube.com/watch?v=05MqDxq9DJ8) | [iRODS: open source data management software](https://www.youtube.com/watch?v=05MqDxq9DJ8)\         |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------+
 
 <br/>
 

@@ -9,8 +9,6 @@ website:
       - about.qmd
       - icon: github
         href: https://github.com/FAIReLABS
-      - icon: twitter
-        href: https://twitter.com/irods
       - icon: rss
         href: index.xml
       - text: R-bloggers

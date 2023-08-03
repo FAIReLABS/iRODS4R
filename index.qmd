@@ -11,7 +11,6 @@ listing:
   feed:
     type: full
     categories: [news, iRODS, R, FAIR, open science]
-  #image-placeholder: "iRODS-logo.png"
 page-layout: full
 title-block-banner: true
 ---

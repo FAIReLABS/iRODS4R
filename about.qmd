@@ -1,12 +1,9 @@
 ---
 title: "About"
-image: iRODS-logo.png
+image: "https://github.com/irods/irods_client_library_rirods/blob/49e264aca61764dd9de46313c56fe352dfaf4a11/pkgdown/favicon/favicon-32x32.png"
 about:
   template: marquee
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com/irods
     - icon: github
       text: Github
       href: https://github.com/FAIReLABS/iRODS4R
@@ -21,5 +18,4 @@ knitr::write_bib(pkgs, "packages.bib", prefix = "")
 
 One of the biggest problems in research is the inadvertent destruction of data and the inaccessibility of data due to poor labeling and description of data. This loss of data means that studies cannot be replicated, combined or re-used in different settings [@Briney2015; @Wilkinson2016]. Data management becomes more important, but also more challenging, in the age of rapid digital data production. The Integrated Rule-Oriented Data System ([iRODS](https://irods.org/)) [@Rajasekar2010; @Rajasekar2015] is an open sourced data management software suite that offers a solution to this demand, which encompasses the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.
 
-Nonetheless, the learning curve of how to implement iRODS effectively for day-to-day data management purposes can be steep for the average scientist. Hence there have been multiple incentives to lower this barrier by hiding parts of the behind-the-scenes business logic which requires considerable knowledge of command line tools. Highly popular among academics are higher level programming languages, such as R, that can help construct such data analyses workflows. The R package *rirods* [@rirods] leverages iRODS in R. This packages allows straightforward integration of data management practices in the R environment, thereby ensuring the findability, accessibility, interoperability, and reusability (FAIR) of data. 
-
+Nonetheless, the learning curve of how to implement iRODS effectively for day-to-day data management purposes can be steep for the average scientist. Hence there have been multiple incentives to lower this barrier by hiding parts of the behind-the-scenes business logic which requires considerable knowledge of command line tools. Highly popular among academics are higher level programming languages, such as R, that can help construct such data analyses workflows. The R package *rirods* [@rirods] leverages iRODS in R. This packages allows straightforward integration of data management practices in the R environment, thereby ensuring the findability, accessibility, interoperability, and reusability (FAIR) of data.
