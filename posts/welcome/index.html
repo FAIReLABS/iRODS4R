@@ -221,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Do the following to connect with the iRODS demo server: 
-create_irods("http://localhost/irods-rest/0.9.3", "/tempZone/home") 
+create_irods("http://localhost/irods-rest/0.9.3", "tempZone/home") 
 iauth("martin", "secret")</code></pre>
 </div>
 </div>
@@ -242,16 +242,11 @@ iauth("martin", "secret")</code></pre>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list</span>(</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>          <span class="fu">list</span>(</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">operation =</span> <span class="st">"add"</span>,</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">attribute =</span> <span class="st">"content"</span>,</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">value =</span> <span class="st">"commit history iRODS"</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>          ),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>          <span class="fu">list</span>(</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">operation =</span> <span class="st">"add"</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">attribute =</span> <span class="st">"file_type"</span>,</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">value =</span> <span class="st">"R object"</span>,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">units =</span> <span class="st">"RDS"</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>          )</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">attribute =</span> <span class="st">"R object"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">value =</span> <span class="st">"commit history iRODS"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">units =</span> <span class="st">"data.frame"</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s have a look at how this looks like within the iRODS server with <code>ils()</code>, which is somewhat similar to base R’s <code>list.files()</code>.</p>
 <div class="cell">
@@ -262,9 +257,8 @@ iauth("martin", "secret")</code></pre>
 metadata
 ========
 /tempZone/home/martin/commits.rds :
- attribute                value units
-   content commit history iRODS      
- file_type             R object   RDS
+ attribute                value      units
+  R object commit history iRODS data.frame
 
 
 ==========
@@ -330,8 +324,8 @@ iRODS Zone
 
 </tbody></table>
 <p><br></p>
-<p>Or visit the iRODS website: <a href="https://irods.org/">https://irods.org/</a>.</p>
-<p><em>The code to generate iRODS GitHub commit history can be found <a href="https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R">here</a>, and is based on this <a href="https://masalmon.eu/2017/02/21/firstcommit/">blog</a> by Maëlle Salmon.</em></p>
+<p>Or visit iROD’s webpage: <a href="https://irods.org/">https://irods.org/</a>.</p>
+<p><em>The code to generate iRODS GitHUb commit history can be found <a href="https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R">here</a>, and is based on this <a href="https://masalmon.eu/2017/02/21/firstcommit/">blog</a> by Maëlle Salmon.</em></p>
 
 
 

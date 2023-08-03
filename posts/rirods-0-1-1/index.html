@@ -9,7 +9,7 @@
 <meta name="author" content="Martin Schobben">
 <meta name="author" content="Mariana Montes">
 <meta name="author" content="Terrell Russell">
-<meta name="dcterms.date" content="2023-07-11">
+<meta name="dcterms.date" content="2023-07-08">
 
 <title>iRODS4R - Care about FAIR</title>
 <style>
@@ -129,11 +129,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/irods" rel="" target=""><i class="bi bi-twitter" role="img">
-</i> 
- <span class="menu-text"></span></a>
-  </li>  
-  <li class="nav-item compact">
     <a class="nav-link" href="../../index.xml" rel="" target=""><i class="bi bi-rss" role="img">
 </i> 
  <span class="menu-text"></span></a>
@@ -179,7 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">July 11, 2023</p>
+        <p class="date">July 8, 2023</p>
       </div>
     </div>
     
@@ -197,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<p><em>This article is about the first release of rirods (see the <a href="https://irods.github.io/irods_client_library_rirods/">documentation</a>).</em></p>
+<p><em>This article is about the first release of rirods (see the <a href="http://irods4r.org">documentation</a>).</em></p>
 <p>The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.</p>
 <p>There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package <code>DBI</code>. This requires data to be in a tabular format. <a href="https://irods.org/">iRODS</a> can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS’ functionality for R in the new package <code>rirods</code>. This means that you can move around and store any R object as you like.</p>
 <p>Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.</p>

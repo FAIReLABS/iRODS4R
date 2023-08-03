@@ -10,7 +10,7 @@
 <atom:link href="https://fairelabs.github.io/iRODS4R/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.3.361</generator>
-<lastBuildDate>Mon, 10 Jul 2023 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 07 Jul 2023 22:00:00 GMT</lastBuildDate>
 <item>
   <title>Care about FAIR</title>
   <dc:creator>Martin Schobben</dc:creator>
@@ -22,7 +22,7 @@
 
 
 
-<p><em>This article is about the first release of rirods (see the <a href="https://irods.github.io/irods_client_library_rirods/">documentation</a>).</em></p>
+<p><em>This article is about the first release of rirods (see the <a href="http://irods4r.org">documentation</a>).</em></p>
 <p>The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.</p>
 <p>There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package <code>DBI</code>. This requires data to be in a tabular format. <a href="https://irods.org/">iRODS</a> can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS’ functionality for R in the new package <code>rirods</code>. This means that you can move around and store any R object as you like.</p>
 <p>Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.</p>
@@ -383,7 +383,7 @@ font-style: inherit;">stop_irods_demo</span>()</span></code></pre></div>
   <category>FAIR</category>
   <category>open science</category>
   <guid>https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index.html</guid>
-  <pubDate>Mon, 10 Jul 2023 22:00:00 GMT</pubDate>
+  <pubDate>Fri, 07 Jul 2023 22:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
