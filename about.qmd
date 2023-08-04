@@ -1,6 +1,6 @@
 ---
 title: "About"
-image: "https://github.com/irods/irods_client_library_rirods/blob/49e264aca61764dd9de46313c56fe352dfaf4a11/pkgdown/favicon/favicon-32x32.png"
+image: "https://github.com/irods/irods_client_library_rirods/blob/49e264aca61764dd9de46313c56fe352dfaf4a11/pkgdown/favicon/apple-touch-icon-180x180.png?raw=true"
 about:
   template: marquee
   links:

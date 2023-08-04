@@ -5,12 +5,12 @@ author:
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "07/08/2023"
+date: "08/07/2023"
 date-format: long
 categories: [news, R, FAIR, open science]
 ---
 
-*This article is about the first release of rirods (see the [documentation](http://irods4r.org)).*
+*This article is about the first release of rirods (see the [documentation](http://rirods.irods4r.org)).*
 
 The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
 
