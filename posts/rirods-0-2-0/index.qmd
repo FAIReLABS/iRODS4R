@@ -1,0 +1,75 @@
+---
+title: "iRODS new HTTP API 🥳"
+subtitle: "Release 0.2.0 of rirods"
+author: 
+  - "Martin Schobben"
+  - "Mariana Montes"
+  - "Terrell Russell"
+date: "08/07/2023"
+date-format: long
+categories: [news, R, FAIR, open science]
+---
+
+*This article is about release 0.2.0 of rirods (see the [documentation](http://rirods.irods4r.org)).*
+
+
+```{r message=FALSE}
+library(readr)
+library(dplyr)
+library(forcats)
+library(ggplot2)
+
+commits <- read_csv("https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/rirods-0-1-1/data/irods_commits.csv")
+
+
+.old_config_dir <- Sys.getenv("R_USER_CONFIG_DIR")
+.old_wd <- setwd(tempdir())
+Sys.setenv("R_USER_CONFIG_DIR" = tempdir())
+
+commits <- commits |> 
+  filter(!fork, !archived, !private, !is.na(commits_names)) |> 
+  mutate(
+    commits_names = fct_lump(commits_names, 10),
+    commits_names = fct_infreq(commits_names)
+  )
+
+ggplot(commits,aes(x = commits_names)) + 
+    geom_bar() + 
+    coord_flip()
+```
+
+
+Here comes `rirods` into the picture. Install the package from CRAN or get the development version from [GitHub](https://github.com/irods/irods_client_library_rirods).
+
+```{r eval=FALSE}
+install.packages("rirods")
+```
+
+We will demonstrate `rirods` usage by running a mock server on your localhost. The username and password are set to `"martin"` and `"secret"` for the example, but can be changed accordingly.
+
+*Note that one needs Bash and Docker (with docker-compose) to use this mock-up.*
+
+```{r}
+library(rirods)
+use_irods_demo("martin", "secret")
+```
+
+We follow the instructions from the output and create a project file with the server details and login to the system with our credentials.
+
+```{r}
+create_irods("http://localhost:9001/irods-http-api/0.2.0")
+iauth("martin", "secret")
+```
+
+Now we can save the R object `commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS()`.
+
+```{r}
+isaveRDS(commits, "commits.rds")
+```
+
+
+```{r}
+setwd(.old_wd)
+Sys.setenv("R_USER_CONFIG_DIR" = .old_config_dir)
+```
+
