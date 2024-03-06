@@ -1,0 +1,15 @@
+irods_repos.csv filter=lfs diff=lfs merge=lfs -text
+/../../../*.csv filter=lfs diff=lfs merge=lfs -text
+/../../*.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-1-1/data/irods_commits.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-1-1/data/irods_contributors.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-1-1/data/irods_repos.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-1-1/data/irods_stargazers.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/irods_commits.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/nodejs_commits.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/tidy_commits.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/tidyverse_repos.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/git_commits.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/git_repos.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/irods_repos.csv filter=lfs diff=lfs merge=lfs -text
+posts/rirods-0-2-0/data/nodejs_repos.csv filter=lfs diff=lfs merge=lfs -text

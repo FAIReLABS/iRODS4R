@@ -1,5 +1,5 @@
 ---
-title: "iRODS new HTTP API 🥳"
+title: "Linking R to iRODS new HTTP API 🥳"
 subtitle: "Release 0.2.0 of rirods"
 author: 
   - "Martin Schobben"
@@ -12,6 +12,12 @@ categories: [news, R, FAIR, open science]
 
 *This article is about release 0.2.0 of rirods (see the [documentation](http://rirods.irods4r.org)).*
 
+```{r setup, include=FALSE}
+.old_config_dir <- Sys.getenv("R_USER_CONFIG_DIR")
+.old_wd <- setwd(tempdir())
+Sys.setenv("R_USER_CONFIG_DIR" = tempdir())
+```
+
 
 ```{r message=FALSE}
 library(readr)
@@ -19,23 +25,9 @@ library(dplyr)
 library(forcats)
 library(ggplot2)
 
-commits <- read_csv("https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/rirods-0-1-1/data/irods_commits.csv")
-
-
-.old_config_dir <- Sys.getenv("R_USER_CONFIG_DIR")
-.old_wd <- setwd(tempdir())
-Sys.setenv("R_USER_CONFIG_DIR" = tempdir())
-
-commits <- commits |> 
-  filter(!fork, !archived, !private, !is.na(commits_names)) |> 
-  mutate(
-    commits_names = fct_lump(commits_names, 10),
-    commits_names = fct_infreq(commits_names)
-  )
-
-ggplot(commits,aes(x = commits_names)) + 
-    geom_bar() + 
-    coord_flip()
+irods_commits <- read_csv("posts/rirods-0-2-0/data/irods_commits.csv")
+tidy_commits <- read_csv("posts/rirods-0-2-0/data/tidy_commits.csv")
+nodejs_commits <- read_csv("posts/rirods-0-2-0/data/nodejs_commits.csv")
 ```
 
 
@@ -63,8 +55,20 @@ iauth("martin", "secret")
 
 Now we can save the R object `commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS()`.
 
+```{r cache=TRUE}
+f <- function(x) {
+  bench::mark(
+      isaveRDS(x, paste0(x, ".rds")),
+      max_iterations = 100,
+      filter_gc = FALSE
+  )
+}
+Map(f, c(tidy_commits, irods_commits, nodejs_commits))
+```
+
+
 ```{r}
-isaveRDS(commits, "commits.rds")
+ireadRDS("commits.rds")
 ```
 
 
