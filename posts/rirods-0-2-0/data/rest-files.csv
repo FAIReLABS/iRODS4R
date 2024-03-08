@@ -1,0 +1,17 @@
+expression,min,median,itr/sec,mem_alloc,gc/sec,n_itr,n_gc,total_time,result,memory,time,gc,source,file name,size
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",  2.19m,  2.19m,0.007597663776464553,526.89MB,0.2431252408468657,1,32,  2.19m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,git_commits,4923026
+"iput(file_name, basename(file_name), overwrite = TRUE)",  2.94m,  2.94m,0.0056736480086324375,526.34MB,0.18723038428487043,1,33,  2.94m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,git_commits,4923026
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)", 87.88ms,101.06ms,9.409278735278994,131.9KB,0,5,0,531.39ms,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,git_repos,1943
+"iput(file_name, basename(file_name), overwrite = TRUE)",135.34ms,157.84ms,6.353258093258602,121.57KB,0,4,0,629.6ms,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,git_repos,1943
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",  3m,  3m,0.005552872350282622,695.48MB,0.18879765990960914,1,34,  3m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,irods_commits,6516258
+"iput(file_name, basename(file_name), overwrite = TRUE)",  4.08m,  4.08m,0.004085684120893858,696.1MB,0.13891326011039118,1,34,  4.08m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,irods_commits,6516258
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",  1.58s,  1.58s,0.6320577208618036,  5.01MB,0.6320577208618036,1,1,  1.58s,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,irods_repos,46325
+"iput(file_name, basename(file_name), overwrite = TRUE)",  1.96s,  1.96s,0.5107866690313689,  5MB,0,1,0,  1.96s,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,irods_repos,46325
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",  4.47m,  4.47m,0.003729677946419111,  1.01GB,0.12307937223183066,1,33,  4.47m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,nodejs_commits,9690453
+"iput(file_name, basename(file_name), overwrite = TRUE)",  6.08m,  6.08m,0.0027430037187804826,  1.01GB,0.09051912271975592,1,33,  6.08m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,nodejs_commits,9690453
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",  1.67s,  1.67s,0.5982564328421064,  5.88MB,0,1,0,  1.67s,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,nodejs_repos,54597
+"iput(file_name, basename(file_name), overwrite = TRUE)",  2.13s,  2.13s,0.4693642087399337,  5.87MB,0,1,0,  2.13s,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,nodejs_repos,54597
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",  1.34m,  1.34m,0.012467732678549151,307.8MB,0.13714505946404065,1,11,  1.34m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,tidy_commits,2883850
+"iput(file_name, basename(file_name), overwrite = TRUE)",  1.79m,  1.79m,0.009334007506849122,308.06MB,0.09334007506849122,1,10,  1.79m,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,tidy_commits,2883850
+"iget(basename(file_name), basename(file_name), overwrite = TRUE)",306.69ms,308.2ms,3.2445987584174465,  1.2MB,0,2,0,616.41ms,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,tidyverse_repos,10745
+"iput(file_name, basename(file_name), overwrite = TRUE)",445.84ms,446.75ms,2.2383860805983105,  1.18MB,0,2,0,893.5ms,,,,,https://cran.r-project.org/src/contrib/rirods_0.1.2,tidyverse_repos,10745

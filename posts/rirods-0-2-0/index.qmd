@@ -1,79 +1,131 @@
 ---
-title: "Linking R to iRODS new HTTP API 🥳"
+title: "Linking R to iRODS' new HTTP API 🥳"
 subtitle: "Release 0.2.0 of rirods"
 author: 
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "08/07/2023"
+date: "03/07/2024"
 date-format: long
 categories: [news, R, FAIR, open science]
 ---
 
-*This article is about release 0.2.0 of rirods (see the [documentation](http://rirods.irods4r.org)).*
-
-```{r setup, include=FALSE}
+```{r setup, echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = FALSE)#, cache = TRUE)
 .old_config_dir <- Sys.getenv("R_USER_CONFIG_DIR")
-.old_wd <- setwd(tempdir())
 Sys.setenv("R_USER_CONFIG_DIR" = tempdir())
+here::i_am("posts/rirods-0-2-0/index.qmd")
 ```
 
+::: {.callout-note}
+This article is about  release 0.2.0 of `rirods` (see the [documentation](http://rirods.irods4r.org)).
+:::
 
-```{r message=FALSE}
-library(readr)
+
+Packages used in this blog post.
+
+```{r echo=TRUE, message=FALSE}
+library(here)
 library(dplyr)
-library(forcats)
 library(ggplot2)
-
-irods_commits <- read_csv("posts/rirods-0-2-0/data/irods_commits.csv")
-tidy_commits <- read_csv("posts/rirods-0-2-0/data/tidy_commits.csv")
-nodejs_commits <- read_csv("posts/rirods-0-2-0/data/nodejs_commits.csv")
+library(readr)
+library(tidyr)
 ```
 
-
-Here comes `rirods` into the picture. Install the package from CRAN or get the development version from [GitHub](https://github.com/irods/irods_client_library_rirods).
-
-```{r eval=FALSE}
-install.packages("rirods")
-```
-
-We will demonstrate `rirods` usage by running a mock server on your localhost. The username and password are set to `"martin"` and `"secret"` for the example, but can be changed accordingly.
-
-*Note that one needs Bash and Docker (with docker-compose) to use this mock-up.*
 
 ```{r}
-library(rirods)
-use_irods_demo("martin", "secret")
-```
-
-We follow the instructions from the output and create a project file with the server details and login to the system with our credentials.
-
-```{r}
-create_irods("http://localhost:9001/irods-http-api/0.2.0")
-iauth("martin", "secret")
-```
-
-Now we can save the R object `commits` with `isaveRDS()`, which behaves similar to base R's `saveRDS()`.
-
-```{r cache=TRUE}
-f <- function(x) {
-  bench::mark(
-      isaveRDS(x, paste0(x, ".rds")),
-      max_iterations = 100,
-      filter_gc = FALSE
+git_commits_fls <- list.files(here("posts", "rirods-0-2-0" ,"data"), pattern = "_commits", full.names = TRUE)
+git_commits <- read_csv(git_commits_fls, show_col_types = FALSE, id = "path") |> 
+  mutate(name = tools::file_path_sans_ext(basename(path))) |> 
+  separate(name, c("GitHub Group", "type")) |> 
+  count(type, `GitHub Group`, name = "number") |> 
+  mutate(
+    `file size (Mb)` = file.size(git_commits_fls) / 1e6,
+    type = factor(type, levels = c("repos", "commits"))
   )
+
+git_repos_fls <- list.files(here("posts", "rirods-0-2-0" ,"data"), pattern = "_repos", full.names = TRUE)
+git_repos <- read_csv(git_repos_fls, show_col_types = FALSE, id = "path") |> 
+  mutate(name = tools::file_path_sans_ext(basename(path))) |> 
+  separate(name, c("GitHub Group", "type")) |> 
+  count(type, `GitHub Group`, name = "number")  |> 
+  mutate(
+    `file size (Mb)` = file.size(git_repos_fls)  / 1e6,
+    type = factor(type, levels = c("repos", "commits"))
+  )
+
+bind_rows(git_commits, git_repos) |> 
+  ggplot(aes(y = number, x = `file size (Mb)`, color = `GitHub Group`)) +
+  geom_point() +
+  theme_light() +
+  facet_grid(cols = vars(type),  scales = "free", axes = "all") +
+  scale_x_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5))+
+  scale_y_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5)) +
+  theme(legend.position = "top")
+
+```
+
+
+```{r echo=FALSE, fig.width=12}
+fls <- Map(
+  function (x) here("posts", "rirods-0-2-0" ,"data", x),
+  c("http-files.csv", "rest-files.csv")
+) |>  
+  as.character() 
+
+commit_hist <- read_csv(fls, show_col_types = FALSE) |>
+  mutate(
+    `fun name` =
+      if_else(grepl("iput", expression), "iput", "iget"),
+    `file size (Mb)` = size / 1e6,
+    `memory allocated (Mb)` =
+      case_when(
+        endsWith(mem_alloc, "GB") ~ parse_number(mem_alloc) * 1e3,
+        endsWith(mem_alloc, "MB") ~ parse_number(mem_alloc),
+        endsWith(mem_alloc, "KB") ~ parse_number(mem_alloc) / 1e3
+      ),
+    `median time (sec)` = 1 / `itr/sec`
+  ) 
+
+make_plot <- function(dat, x, type = "files") {
+  ggplot(dat, aes(x = `file size (Mb)`, y = {{x}}, color = source)) +
+    geom_point() +
+    geom_line() +
+    scale_x_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5)) +
+    labs(color = "Package version") + 
+    theme(legend.position = "top", legend.box = "vertical") +
+    guides(color = guide_legend(nrow = 3, byrow = TRUE)) +
+    facet_grid(cols = vars(`fun name`)) +
+    theme_light() +
+    theme(legend.position = "top")
 }
-Map(f, c(tidy_commits, irods_commits, nodejs_commits))
+
+make_table <- function(dat, x, type = "files", cap = "**") {
+  dat |>  
+    arrange(source, `fun name`, `file size (Mb)`) |> 
+    relocate(source, `fun name`, `file name`, .before = expression) |> 
+    select(
+      !c(result, memory, time, `gc/sec`,	n_itr,	n_gc, gc, 
+         total_time, min, `itr/sec`, expression, mem_alloc, size, median), 
+    ) |> 
+    knitr::kable(digits = 2, align = "r", format = "html", caption = cap)
+}
 ```
 
 
 ```{r}
-ireadRDS("commits.rds")
+make_plot(commit_hist, `median time (sec)`)
 ```
 
+```{r}
+make_plot(commit_hist, `memory allocated (Mb)`)
+```
 
 ```{r}
-setwd(.old_wd)
+make_table(commit_hist)
+```
+
+```{r echo=FALSE}
 Sys.setenv("R_USER_CONFIG_DIR" = .old_config_dir)
 ```
 
