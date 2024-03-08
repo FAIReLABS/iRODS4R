@@ -10,6 +10,10 @@ date-format: long
 categories: [news, R, FAIR, open science]
 ---
 
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
 *This article is about the first release of rirods (see the [documentation](http://rirods.irods4r.org)).*
 
 The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.
@@ -42,7 +46,7 @@ To reproduce this new data set we could of course rerun the whole script, but im
 
 Here comes `rirods` into the picture. Install the package from CRAN or get the development version from [GitHub](https://github.com/irods/irods_client_library_rirods).
 
-```{r eval=FALSE}
+```{r}
 install.packages("rirods")
 ```
 
