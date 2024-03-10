@@ -21,9 +21,9 @@ here::i_am("posts/rirods-0-2-0/index.qmd")
 This article is about the release of `rirods` 0.2.0 (see the [documentation](http://rirods.irods4r.org)). iRODS C++ HTTP 0.2.0 is a requirement for this R package.
 :::
 
-As of November 2023 [iRODS](https://irods.org) has released the [iRODS C++ HTTP API](https://irods.org/2023/11/initial-release-of-the-irods-http-api/), as a replacement of the old [iRODS C++ REST API](https://github.com/irods/irods_client_rest_cpp). This new interface to the iRODS server comes with a host of improvements including flexibility of management for all types of operations on users, collections and data objects, as well as supporting authentication with [OpenID Connect](https://openid.net/developers/how-connect-works/). The package is steadily maturing, so it was about time to leverage this functionality with `rirods`.
+As of November 2023 [iRODS](https://irods.org) has released the [iRODS C++ HTTP API](https://irods.org/2023/11/initial-release-of-the-irods-http-api/), as a replacement of the old [iRODS C++ REST API](https://github.com/irods/irods_client_rest_cpp). This new interface to the iRODS server comes with a host of improvements including flexibility of management for all types of operations on users, collections and data objects, as well as supporting authentication with [OpenID Connect](https://openid.net/developers/how-connect-works/). The HTTP API is steadily maturing, so it was about time to leverage this functionality with `rirods`.
 
-Besides a lot of potential for future rirods development in terms of iRODS operations, this new release (rirods 0.2.0) ensures some obvious improvements on the same core functionality as in previous releases of rirods. In this blog we will showcase one of those improvements; the speed of uploading and downloading of files to iRODS. The new HTTP API can now be configured to allow receiving of much larger payloads than the previous REST API. An example of how this configuration in the form of a JSON file can be set can be seen [here](https://github.com/irods/irods_demo/blob/main/irods_client_http_api/config.json). On top of that write requests can now be made in parallel, which can again be manually configured for the number of allowed threads.
+Besides a lot of potential for future rirods development in terms of iRODS operations, this new release (rirods 0.2.0) ensures some obvious improvements on the same core functionality as in previous releases of rirods. In this blog we will showcase one of those improvements---the speed of uploading and downloading of files to iRODS. The new HTTP API can now be configured to allow receiving of much larger payloads. An example of how the HTTP API can be configured with a JSON file can be seen [here](https://github.com/irods/irods_demo/blob/main/irods_client_http_api/config.json). On top of that, write requests can now be made in parallel, which can as well be configured for the number of allowed threads.
 
 In order to benchmark this improvement we show upload and download time as well as memory usage for `iget()` and `iput()`, respectively. We use the Docker based [iRODS demo](https://github.com/irods/irods_demo) as our server. We can easily stand this server up, as follows:
 
@@ -97,7 +97,7 @@ bind_rows(git_commits, git_repos) |>
    guides(color = guide_legend(nrow = 2, byrow = TRUE)) 
 ```
 
-These files are then transferred to the demo server with `iput()` and subsequently retrieved with `iget()`, while comparing rirods 0.1.2 and 0.2.0. This is repeated 100 times and performance was monitored with the R package [`bench`](https://bench.r-lib.org/). We can see that the newer version shows a drastic improvement for file transfers in both directions ([Figure @fig-time]). This was to be expected as the older `rirods` package version needed to chop up the file before transferring chunk-by-chunk to the server at relatively small file sizes (Kb range). As this all took place in R, this was necessarily slow.
+These files are then transferred to the demo server with `iput()` and subsequently retrieved with `iget()`, while comparing rirods 0.1.2 and 0.2.0. This is repeated 100 times and performance was monitored with the R package [`bench`](https://bench.r-lib.org/). We can see that the newer version shows a drastic improvement for file transfers in both directions ([Figure @fig-time]). This was to be expected as the older `rirods` package version needed to chop up the file before transferring it chunk-by-chunk to the server at relatively small file sizes (Kb range). As this all took place in R, this was necessarily slow.
 
 
 ```{r echo=FALSE, fig.width=12}
@@ -153,7 +153,7 @@ make_table <- function(dat, x, type = "files", cap = "**") {
 make_plot(commit_hist, `median time (sec)`)
 ```
 
-The same can be said for the memory allocated to up- and download files to iRODS, which improve in the newer version of rirods ([Figure @fig-mem]). We see that above the threshold for file transfers configured server-side imposes a little more strain on the system above 8 Mb, as we also need to chop the file in pieces in these instances.
+The same can be said for the memory allocated to up- and download files to iRODS, which improves in the newer version of rirods ([Figure @fig-mem]). We see that above the threshold for file transfers configured server-side imposes a little more strain on the system above 8 Mb, as we also need to chop the file in pieces in these instances.
 
 ```{r}
 #| label: fig-mem
@@ -161,7 +161,7 @@ The same can be said for the memory allocated to up- and download files to iRODS
 make_plot(commit_hist, `memory allocated (Mb)`)
 ```
 
-Increased write and read operations are an obvious improvement when using rirods 0.2.0 and the iRODS HTTP API has a lot of potential to add even more functionality in the future. Read more about the changes in some of functions interfaces in the [changelog](https://rirods.irods4r.org/news/index.html). Contributions to the package are warmly welcomed. Please report issues and make pull requests in the GitHub repository of [rirods](https://github.com/irods/irods_client_library_rirods).
+Increased write and read operations are an obvious improvement when using rirods 0.2.0 and the iRODS HTTP API has a lot of potential to add even more functionality to rirods in the future. Read more about the changes in some of the functions interfaces in the [changelog](https://rirods.irods4r.org/news/index.html). Contributions to the package are warmly welcomed. Please report issues and make pull requests in the GitHub repository of [rirods](https://github.com/irods/irods_client_library_rirods).
 
 The following table list all of the benchmark results.
 
