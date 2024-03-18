@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://fairelabs.github.io/iRODS4R/index.html</loc>
-    <lastmod>2023-08-04T06:08:13.988Z</lastmod>
+    <loc>https://fairelabs.github.io/iRODS4R/posts/rirods-0-2-0/index.html</loc>
+    <lastmod>2024-03-18T06:12:04.684Z</lastmod>
   </url>
   <url>
-    <loc>https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index.html</loc>
-    <lastmod>2023-08-04T06:08:14.700Z</lastmod>
+    <loc>https://fairelabs.github.io/iRODS4R/index.html</loc>
+    <lastmod>2024-03-18T06:11:59.056Z</lastmod>
   </url>
   <url>
     <loc>https://fairelabs.github.io/iRODS4R/about.html</loc>
-    <lastmod>2023-08-04T06:08:16.020Z</lastmod>
+    <lastmod>2024-03-18T06:11:58.768Z</lastmod>
+  </url>
+  <url>
+    <loc>https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index.html</loc>
+    <lastmod>2024-03-18T06:12:02.828Z</lastmod>
   </url>
 </urlset>

@@ -9,125 +9,625 @@
 <link>https://fairelabs.github.io/iRODS4R/index.html#category=FAIR</link>
 <atom:link href="https://fairelabs.github.io/iRODS4R/index-fair.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.3.361</generator>
-<lastBuildDate>Sun, 06 Aug 2023 22:00:00 GMT</lastBuildDate>
+<generator>quarto-1.3.450</generator>
+<lastBuildDate>Sun, 17 Mar 2024 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Linking R to iRODS’ new HTTP API 🥳</title>
+  <dc:creator>Martin Schobben</dc:creator>
+  <dc:creator>Mariana Montes</dc:creator>
+  <dc:creator>Terrell Russell</dc:creator>
+  <link>https://fairelabs.github.io/iRODS4R/posts/rirods-0-2-0/index.html</link>
+  <description><![CDATA[ <div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This article is about the release of <code>rirods</code> 0.2.0 (see the <a href="http://rirods.irods4r.org">documentation</a>). iRODS C++ HTTP 0.2.0 is a requirement for this R package.</p>
+</div>
+</div>
+<p>As of November 2023 <a href="https://irods.org">iRODS</a> has released the <a href="https://irods.org/2023/11/initial-release-of-the-irods-http-api/">iRODS C++ HTTP API</a>, as a replacement of the old <a href="https://github.com/irods/irods_client_rest_cpp">iRODS C++ REST API</a>. This new interface to the iRODS server comes with a host of improvements including flexibility of management for all types of operations on users, collections and data objects, as well as supporting authentication with <a href="https://openid.net/developers/how-connect-works/">OpenID Connect</a>. The HTTP API is steadily maturing, so it was about time to leverage this functionality with <a href="https://github.com/irods/irods_client_library_rirods">rirods</a>.</p>
+<p>Besides a lot of potential for future rirods development in terms of iRODS operations, this new release (rirods 0.2.0) ensures some obvious improvements on the same core functionality as in previous releases of rirods. In this blog we will showcase one of those improvements—the speed of uploading and downloading of files to iRODS. The new HTTP API can now be configured to allow receiving of much larger payloads. An example of how the HTTP API can be configured with a JSON file can be seen <a href="https://github.com/irods/irods_demo/blob/main/irods_client_http_api/config.json">here</a>. On top of that, write requests can now be made in parallel, which can as well be configured for the number of allowed threads.</p>
+<p>In order to benchmark this improvement we show upload and download time as well as memory usage for <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iget.html">iget()</a></code> and <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">iput()</a></code>, respectively. We use the Docker based <a href="https://github.com/irods/irods_demo">iRODS demo</a> as our server. We can easily stand this server up, as follows:</p>
+<div class="cell">
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;"><a href="https://github.com/irods/irods_client_library_rirods">rirods</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/use_irods_demo.html">use_irods_demo</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Do the following to connect with the iRODS demo server: 
+create_irods("http://localhost:9001/irods-http-api/0.2.0") 
+iauth("rods", "rods")</code></pre>
+</div>
+</div>
+<p>For more information on <code><a href="https://irods.github.io/irods_client_library_rirods/reference/use_irods_demo.html">use_irods_demo()</a></code> see the <code>demo</code> vignette (<code><a href="https://irods.github.io/irods_client_library_rirods/articles/demo.html">vignette("demo", package = "rirods")</a></code>) or this <a href="https://rirods.irods4r.org/articles/demo.html">page</a>. Now that the demo server is running we can log in to the system by following the instructions as printed above.</p>
+<div class="cell">
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/create_irods.html">create_irods</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"http://localhost:9001/irods-http-api/0.2.0"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> </span>
+<span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/iauth.html">iauth</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rods"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rods"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
+</div>
+<p>This server does obviously not contain any collections or data objects, as can be seen by using <code><a href="https://irods.github.io/irods_client_library_rirods/reference/ils.html">ils()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/ils.html">ils</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>This collection does not contain any objects or collections.</code></pre>
+</div>
+</div>
+<p>This demo server has been configured to allow receiving request bodies of up to 8.4 Mb and we can use a maximum of 3 threads simultaneously during a write operation.</p>
+<p>The files transferred to the irods demo server are created with the <a href="https://docs.github.com/en/rest?apiVersion=2022-11-28">GitHub API</a> and the R package <a href="https://gh.r-lib.org/">gh</a>. The number of repositories and commits for the GitHub Groups; <a href="https://github.com/git">git</a>, <a href="https://github.com/irods">irods</a>, <a href="https://github.com/nodejs">nodejs</a>, and <a href="https://github.com/tidyverse">tidyverse</a> have been downloaded (7<sup>th</sup> March 2024). The downloaded results are then saved as csv files. The files generated in this way range in size from 2 Kb to 10 Mb (Figure&nbsp;1). The script and files can be found <a href="https://github.com/FAIReLABS/iRODS4R/tree/main/posts/rirods-0-2-0">here</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-github" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-2-0/index_files/figure-html/fig-github-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;1: Number of repositories and commits on GitHub for the groups git, irods, nodejs, and tidyverse.</figcaption></figure>
+</div>
+</div>
+</div>
+<p>These files are then transferred to the demo server with <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">iput()</a></code> and subsequently retrieved with <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iget.html">iget()</a></code>, while comparing rirods 0.1.2 and 0.2.0. This is repeated 100 times and performance was monitored with the R package <a href="https://bench.r-lib.org/">bench</a>. We can see that the newer version shows a drastic improvement for file transfers in both directions (Figure&nbsp;2). This was to be expected as the older <a href="https://github.com/irods/irods_client_library_rirods">rirods</a> package version needed to chop up the file before transferring it chunk-by-chunk to the server at relatively small file sizes (Kb range). As this all took place in R, this was necessarily slow.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-time" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-2-0/index_files/figure-html/fig-time-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;2: Median time of file transfer for <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iget.html">iget()</a></code> and <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">iput()</a></code> based on <code>bench</code>.</figcaption></figure>
+</div>
+</div>
+</div>
+<p>The same can be said for the memory allocated to up- and download files to iRODS, which improves in the newer version of <a href="https://github.com/irods/irods_client_library_rirods">rirods</a> (Figure&nbsp;3). We see that above the threshold for file transfers configured server-side imposes a little more strain on the system above 8 Mb, as we also need to chop the file in pieces in these instances.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-mem" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-2-0/index_files/figure-html/fig-mem-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;3: Memory allocated for file transfer for <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iget.html">iget()</a></code> and <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">iput()</a></code> based on <code>bench</code>.</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Increased write and read operations are an obvious improvement when using rirods 0.2.0 and the iRODS HTTP API has a lot of potential to add even more functionality to rirods in the future. Read more about the changes in some of the functions interfaces in the <a href="https://rirods.irods4r.org/news/index.html">changelog</a>. Contributions to the package are warmly welcomed. Please report issues and make pull requests in the <a href="https://github.com/irods/irods_client_library_rirods">GitHub repository of rirods</a>.</p>
+<p>The following table list all of the benchmark results.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<caption>Benchmarks results for <code>iget</code> and <code>iput</code>. </caption>
+<thead><tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">source</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">fun name</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">file name</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">file size (Mb)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">memory allocated (Mb)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">median time (sec)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">git_repos</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">0.11</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">tidyverse_repos</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">0.31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">irods_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">5.01</td>
+<td style="text-align: right;">1.58</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">nodejs_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">5.88</td>
+<td style="text-align: right;">1.67</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">tidy_commits</td>
+<td style="text-align: right;">2.88</td>
+<td style="text-align: right;">307.80</td>
+<td style="text-align: right;">80.21</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">git_commits</td>
+<td style="text-align: right;">4.92</td>
+<td style="text-align: right;">526.89</td>
+<td style="text-align: right;">131.62</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">irods_commits</td>
+<td style="text-align: right;">6.52</td>
+<td style="text-align: right;">695.48</td>
+<td style="text-align: right;">180.09</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">nodejs_commits</td>
+<td style="text-align: right;">9.69</td>
+<td style="text-align: right;">1010.00</td>
+<td style="text-align: right;">268.12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">git_repos</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">0.16</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">tidyverse_repos</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">0.45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">irods_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">1.96</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">nodejs_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">5.87</td>
+<td style="text-align: right;">2.13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">tidy_commits</td>
+<td style="text-align: right;">2.88</td>
+<td style="text-align: right;">308.06</td>
+<td style="text-align: right;">107.14</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">git_commits</td>
+<td style="text-align: right;">4.92</td>
+<td style="text-align: right;">526.34</td>
+<td style="text-align: right;">176.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">irods_commits</td>
+<td style="text-align: right;">6.52</td>
+<td style="text-align: right;">696.10</td>
+<td style="text-align: right;">244.76</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.1.2</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">nodejs_commits</td>
+<td style="text-align: right;">9.69</td>
+<td style="text-align: right;">1010.00</td>
+<td style="text-align: right;">364.56</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">git_repos</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">tidyverse_repos</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">irods_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">nodejs_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">tidyverse_commits</td>
+<td style="text-align: right;">2.88</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.17</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">git_commits</td>
+<td style="text-align: right;">4.92</td>
+<td style="text-align: right;">1.12</td>
+<td style="text-align: right;">0.24</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">irods_commits</td>
+<td style="text-align: right;">6.52</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.29</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iget</td>
+<td style="text-align: right;">nodejs_commits</td>
+<td style="text-align: right;">9.69</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">0.42</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">git_repos</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">2.17</td>
+<td style="text-align: right;">0.09</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">tidyverse_repos</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">2.18</td>
+<td style="text-align: right;">0.10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">irods_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">2.21</td>
+<td style="text-align: right;">0.11</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">nodejs_repos</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">2.22</td>
+<td style="text-align: right;">0.09</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">tidyverse_commits</td>
+<td style="text-align: right;">2.88</td>
+<td style="text-align: right;">4.92</td>
+<td style="text-align: right;">0.16</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">git_commits</td>
+<td style="text-align: right;">4.92</td>
+<td style="text-align: right;">7.22</td>
+<td style="text-align: right;">0.17</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">irods_commits</td>
+<td style="text-align: right;">6.52</td>
+<td style="text-align: right;">8.38</td>
+<td style="text-align: right;">0.23</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">https://cran.r-project.org/src/contrib/rirods_0.2.0</td>
+<td style="text-align: right;">iput</td>
+<td style="text-align: right;">nodejs_commits</td>
+<td style="text-align: right;">9.69</td>
+<td style="text-align: right;">752.86</td>
+<td style="text-align: right;">2.92</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+ ]]></description>
+  <category>news</category>
+  <category>R</category>
+  <category>FAIR</category>
+  <category>open science</category>
+  <guid>https://fairelabs.github.io/iRODS4R/posts/rirods-0-2-0/index.html</guid>
+  <pubDate>Sun, 17 Mar 2024 23:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Care about FAIR</title>
   <dc:creator>Martin Schobben</dc:creator>
   <dc:creator>Mariana Montes</dc:creator>
   <dc:creator>Terrell Russell</dc:creator>
   <link>https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index.html</link>
-  <description><![CDATA[ 
-
-
-
-
-<p><em>This article is about the first release of rirods (see the <a href="http://rirods.irods4r.org">documentation</a>).</em></p>
+  <description><![CDATA[ <p><em>This article is about the first release of rirods (see the <a href="http://rirods.irods4r.org">documentation</a>).</em></p>
 <p>The data that drives our R workflow is just as important as the script. Nevertheless, the emphasis lies often on the R script when it comes to reproducibility, but that is not necessarily the most convenient in all circumstances.</p>
 <p>There are several data management solutions available for R, mostly SQL based solutions, made accessible through the R package <code>DBI</code>. This requires data to be in a tabular format. <a href="https://irods.org/">iRODS</a> can, however, simplify storing data as you are freed from strict formatting requirements (more about iRODS below). We leveraged iRODS’ functionality for R in the new package <code>rirods</code>. This means that you can move around and store any R object as you like.</p>
 <p>Imagine you just created an R workflow, where you investigate the number of commits made by contributors for iRODS repositories.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-1_b46905a49cff9896cf50932c3c5bf74c">
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw" style="color: #003B4F;
 background-color: null;
-font-style: inherit;">library</span>(readr)</span>
-<span id="cb1-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">library</span>(dplyr)</span>
-<span id="cb1-3"><span class="fu" style="color: #4758AB;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
 background-color: null;
-font-style: inherit;">library</span>(forcats)</span>
-<span id="cb1-4"><span class="fu" style="color: #4758AB;
+font-style: inherit;"><a href="https://readr.tidyverse.org">readr</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">library</span>(ggplot2)</span>
-<span id="cb1-5"></span>
-<span id="cb1-6">commits <span class="ot" style="color: #003B4F;
+font-style: inherit;">)</span></span>
+<span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;"><a href="https://forcats.tidyverse.org/">forcats</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-style: inherit;"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span></span>
+<span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/rirods-0-1-1/data/irods_commits.csv"</span>)</span>
-<span id="cb1-7"></span>
-<span id="cb1-8">commits <span class="ot" style="color: #003B4F;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">&lt;-</span> commits <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">"https://raw.githubusercontent.com/FAIReLABS/iRODS4R/main/posts/rirods-0-1-1/data/irods_commits.csv"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span></span>
+<span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb1-9">  <span class="fu" style="color: #4758AB;
+<span>  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+font-style: inherit;"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">!</span>fork, <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">!</span>archived, <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">!</span><span class="va" style="color: #111111;
 background-color: null;
-font-style: inherit;">!</span>private, <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">fork</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">archived</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">private</span>, <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">is.na</span>(commits_names)) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits_names</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb1-10">  <span class="fu" style="color: #4758AB;
+<span>  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">mutate</span>(</span>
-<span id="cb1-11">    <span class="at" style="color: #657422;
+font-style: inherit;"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">commits_names =</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;">(</span></span>
+<span>    commits_names <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">fct_lump</span>(commits_names, <span class="dv" style="color: #AD0000;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">10</span>),</span>
-<span id="cb1-12">    <span class="at" style="color: #657422;
+font-style: inherit;"><a href="https://forcats.tidyverse.org/reference/fct_lump.html">fct_lump</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">commits_names =</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
 background-color: null;
-font-style: inherit;">fct_infreq</span>(commits_names)</span>
-<span id="cb1-13">  )</span>
-<span id="cb1-14"></span>
-<span id="cb1-15"><span class="fu" style="color: #4758AB;
+font-style: inherit;">commits_names</span>, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">ggplot</span>(commits,<span class="fu" style="color: #4758AB;
+font-style: inherit;">10</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+font-style: inherit;">)</span>,</span>
+<span>    commits_names <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">x =</span> commits_names)) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://forcats.tidyverse.org/reference/fct_inorder.html">fct_infreq</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits_names</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span>  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span></span>
+<span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits</span>,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span>x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits_names</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb1-16">    <span class="fu" style="color: #4758AB;
+<span>    <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">geom_bar</span>() <span class="sc" style="color: #5E5E5E;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html">geom_bar</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb1-17">    <span class="fu" style="color: #4758AB;
+<span>    <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">coord_flip</span>()</span></code></pre></div>
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>To reproduce this new data set we could of course rerun the whole script, but imagine that we would have done a similar analysis for a much larger contingent of GitHub repositories. Then it becomes worthwhile to also save these intermediate transformations. We could save this data locally, but a much safer and convenient solution would be to save this in a dedicated data management system.</p>
 <p>Here comes <code>rirods</code> into the picture. Install the package from CRAN or get the development version from <a href="https://github.com/irods/irods_client_library_rirods">GitHub</a>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-2_f659a13e45c1ec1d6cdd11989f69f42a">
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"rirods"</span>)</span></code></pre></div>
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rirods"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The following package(s) will be installed:
+- rirods [0.1.2]
+These packages will be installed into "~/Documents/social/iRODS4R/renv/library/R-4.3/x86_64-pc-linux-gnu".
+
+# Installing packages --------------------------------------------------------
+- Installing rirods ...                         OK [linked from cache]
+Successfully installed 1 package in 3.3 milliseconds.</code></pre>
+</div>
 </div>
 <p>We will demonstrate <code>rirods</code> usage by running a mock server on your localhost. The username and password are set to <code>"martin"</code> and <code>"secret"</code> for the example, but can be changed accordingly.</p>
 <p><em>Note that one needs Bash and Docker (with docker-compose) to use this mock-up.</em></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-3_1719497f7738ba8e7fcf25e101423712">
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw" style="color: #003B4F;
 background-color: null;
-font-style: inherit;">library</span>(rirods)</span>
-<span id="cb3-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">use_irods_demo</span>(<span class="st" style="color: #20794D;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;"><a href="https://github.com/irods/irods_client_library_rirods">rirods</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/use_irods_demo.html">use_irods_demo</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"martin"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"secret"</span>)</span></code></pre></div>
+font-style: inherit;">"secret"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Do the following to connect with the iRODS demo server: 
@@ -136,100 +636,134 @@ iauth("martin", "secret")</code></pre>
 </div>
 </div>
 <p>We follow the instructions from the output and create a project file with the server details and login to the system with our credentials.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-4_8b8014c1d7bb37df971ac3fb8815fe48">
+<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">create_irods</span>(<span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/create_irods.html">create_irods</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"http://localhost/irods-rest/0.9.3"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"/tempZone/home"</span>)</span>
-<span id="cb5-2"><span class="fu" style="color: #4758AB;
+font-style: inherit;">"/tempZone/home"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">iauth</span>(<span class="st" style="color: #20794D;
+font-style: inherit;">)</span></span>
+<span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/iauth.html">iauth</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"martin"</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"secret"</span>)</span></code></pre></div>
+font-style: inherit;">"secret"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 </div>
-<p>Now we can save the R object <code>commits</code> with <code>isaveRDS()</code>, which behaves similar to base R’s <code>saveRDS()</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
+<p>Now we can save the R object <code>commits</code> with <code><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">isaveRDS()</a></code>, which behaves similar to base R’s <code><a href="https://rdrr.io/r/base/readRDS.html">saveRDS()</a></code>.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-5_e0d2e9670aa45fa670666d844cc28a90">
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">isaveRDS</span>(commits, <span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">isaveRDS</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"commits.rds"</span>)</span></code></pre></div>
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"commits.rds"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 </div>
 <p>This is not all. You can now also label this data set by adding metadata.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-6_662f60a6e73befe157c7109d077c182a">
+<div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">imeta</span>(<span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/imeta.html">imeta</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"commits.rds"</span>,</span>
-<span id="cb7-2">      <span class="st" style="color: #20794D;
+<span>      <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"data_object"</span>,</span>
-<span id="cb7-3">      <span class="at" style="color: #657422;
+<span>      operations <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">operations =</span></span>
-<span id="cb7-4">        <span class="fu" style="color: #4758AB;
+font-style: inherit;">=</span></span>
+<span>        <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">list</span>(</span>
-<span id="cb7-5">          <span class="fu" style="color: #4758AB;
+font-style: inherit;"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">list</span>(</span>
-<span id="cb7-6">            <span class="at" style="color: #657422;
+font-style: inherit;">(</span></span>
+<span>          <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">operation =</span> <span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span></span>
+<span>            operation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"add"</span>,</span>
-<span id="cb7-7">            <span class="at" style="color: #657422;
+<span>            attribute <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">attribute =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"content"</span>,</span>
-<span id="cb7-8">            <span class="at" style="color: #657422;
+<span>            value <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">value =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"commit history iRODS"</span></span>
-<span id="cb7-9">          ),</span>
-<span id="cb7-10">          <span class="fu" style="color: #4758AB;
+<span>          <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">list</span>(</span>
-<span id="cb7-11">            <span class="at" style="color: #657422;
+font-style: inherit;">)</span>,</span>
+<span>          <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">operation =</span> <span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span></span>
+<span>            operation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"add"</span>,</span>
-<span id="cb7-12">            <span class="at" style="color: #657422;
+<span>            attribute <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">attribute =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"file_type"</span>,</span>
-<span id="cb7-13">            <span class="at" style="color: #657422;
+<span>            value <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">value =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"R object"</span>,</span>
-<span id="cb7-14">            <span class="at" style="color: #657422;
+<span>            units <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">units =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"RDS"</span></span>
-<span id="cb7-15">          )</span>
-<span id="cb7-16">        ))</span></code></pre></div>
+<span>          <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span>        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 </div>
-<p>Now let’s have a look at how this looks like within the iRODS server with <code>ils()</code>, which is somewhat similar to base R’s <code>list.files()</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+<p>Now let’s have a look at how this looks like within the iRODS server with <code><a href="https://irods.github.io/irods_client_library_rirods/reference/ils.html">ils()</a></code>, which is somewhat similar to base R’s <code><a href="https://rdrr.io/r/base/list.files.html">list.files()</a></code>.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-7_7b88f26640e5af9f198f7dea987e2179">
+<div class="sourceCode" id="cb9" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">ils</span>(<span class="at" style="color: #657422;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/ils.html">ils</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">metadata =</span> <span class="cn" style="color: #8f5902;
+font-style: inherit;">(</span>metadata <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">TRUE</span>)</span></code></pre></div>
+font-style: inherit;">=</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 ========
@@ -250,127 +784,193 @@ iRODS Zone
 </div>
 <p>This makes the data discoverable on the iRODS server. Hence <code>rirods</code> not only helps you store and find data, but it also makes sharing data with your peers more straightforward.</p>
 <p>As it seems you were not yet done with your analysis of the iRODS commit history. You put considerable effort in creating an informative plot, which lists commits according to the most popular repositories as well as authors.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">plot_commits <span class="ot" style="color: #003B4F;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-8_153445e92f40a6128692dfeafd95862c">
+<div class="sourceCode" id="cb11" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va" style="color: #111111;
 background-color: null;
-font-style: inherit;">&lt;-</span> commits <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">plot_commits</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">|&gt;</span></span>
-<span id="cb10-2">  <span class="fu" style="color: #4758AB;
+font-style: inherit;">&lt;-</span> <span class="va" style="color: #111111;
 background-color: null;
-font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">names =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">if_else</span>(stargazers_count <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, names, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"other"</span>)) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">commits</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb10-3">    <span class="fu" style="color: #4758AB;
+<span>  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+font-style: inherit;"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+font-style: inherit;">(</span>names <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">x =</span> commits_names, <span class="at" style="color: #657422;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">fill =</span> names)) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">stargazers_count</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">names</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"other"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span>    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span>x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">commits_names</span>, fill <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">names</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb10-4">      <span class="fu" style="color: #4758AB;
+<span>      <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">geom_bar</span>(<span class="at" style="color: #657422;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html">geom_bar</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">position =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">(</span>position <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"stack"</span>) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"stack"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb10-5">      <span class="fu" style="color: #4758AB;
+<span>      <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">coord_flip</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span> <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb10-6">      <span class="fu" style="color: #4758AB;
+<span>      <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">theme</span>(</span>
-<span id="cb10-7">        <span class="at" style="color: #657422;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">(</span></span>
+<span>        legend.position <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"top"</span>,</span>
-<span id="cb10-8">        <span class="at" style="color: #657422;
+<span>        legend.title <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">element_blank</span>(),</span>
-<span id="cb10-9">        <span class="at" style="color: #657422;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">legend.key.size =</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+font-style: inherit;">)</span>,</span>
+<span>        legend.key.size <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="fl" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">4</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"point"</span>),</span>
-<span id="cb10-10">        <span class="at" style="color: #657422;
+font-style: inherit;">"point"</span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+font-style: inherit;">)</span>,</span>
+<span>        legend.text <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+font-style: inherit;"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">7</span>)</span>
-<span id="cb10-11">      )</span></code></pre></div>
+font-style: inherit;">(</span>size <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span>      <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 </div>
 <p>This is also no problem for <code>rirods</code>, as long as we deal with an R object, we can store it in iRODS.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-9_70ec889e19997ed6eccc27947e77e3ba">
+<div class="sourceCode" id="cb12" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">isaveRDS</span>(plot_commits, <span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/iput.html">isaveRDS</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"plot_commits.rds"</span>)</span></code></pre></div>
+font-style: inherit;">(</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">plot_commits</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plot_commits.rds"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 </div>
 <p>Later on we can directly get the object back in an R environment, thereby plotting the results.</p>
 <div class="cell" data-hash="index_cache/html/unnamed-chunk-10_27ec595819cc6b0deee903d9813edca4">
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode" id="cb13" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">ireadRDS</span>(<span class="st" style="color: #20794D;
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/iget.html">ireadRDS</a></span><span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">"plot_commits.rds"</span>)</span></code></pre></div>
+font-style: inherit;">(</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plot_commits.rds"</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <p><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Let’s terminate the iRODS demo server and give a short introduction to iRODS.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-11_c8c75d120be76c80f13cd76ee468fda5">
+<div class="sourceCode" id="cb14" style="background: #f1f3f5;"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">stop_irods_demo</span>()</span></code></pre></div>
+font-style: inherit;"><a href="https://irods.github.io/irods_client_library_rirods/reference/use_irods_demo.html">stop_irods_demo</a></span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">(</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">)</span></span></code></pre></div>
 </div>
 <p>The Integrated Rule-Oriented Data System (iRODS) is an open sourced data management software suite that covers the whole data life cycle from data generation, storage and recycling. The loosely constructed and highly configurable architecture of iRODS frees the user from strict formatting constrains and single-vendor solutions. Furthermore, the open-sourced and community supported nature of iRODS safeguards data storage and re-usability of data in terms of longevity and independently of future technological innovations.</p>
 <p>You can watch the videos to get a better understanding of what iRODS brings to data management.</p>
 <p><br></p>
-<table class="table">
-<tbody>
+<table class="table"><tbody>
 <tr class="odd">
 <td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU"><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/https:/i.ytimg.com/vi/_5eVd3NJ5BU/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&amp;rs=AOn4CLCu9GhWfZerHePF12TKlhUORzp8KQ" class="img-fluid"></a></td>
-<td><a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU">Automated Data Management: An Introduction to iRODS</a><br>
+<td>
+<a href="https://www.youtube.com/watch?v=_5eVd3NJ5BU">Automated Data Management: An Introduction to iRODS</a><br>
 </td>
 </tr>
 <tr class="even">
 <td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8"><img src="https://fairelabs.github.io/iRODS4R/posts/rirods-0-1-1/https:/i.ytimg.com/vi/05MqDxq9DJ8/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&amp;rs=AOn4CLApTGdSkvAHui9KlTJawF9J2VQWsA" class="img-fluid"></a></td>
-<td><a href="https://www.youtube.com/watch?v=05MqDxq9DJ8">iRODS: open source data management software</a><br>
+<td>
+<a href="https://www.youtube.com/watch?v=05MqDxq9DJ8">iRODS: open source data management software</a><br>
 </td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p><br></p>
 <p>Or visit the iRODS website: <a href="https://irods.org/" class="uri">https://irods.org/</a>.</p>
 <p><em>The code to generate iRODS GitHub commit history can be found <a href="https://github.com/FAIReLABS/iRODS4R/blob/main/posts/welcome/data-raw.R">here</a>, and is based on this <a href="https://masalmon.eu/2017/02/21/firstcommit/">blog</a> by Maëlle Salmon.</em></p>
