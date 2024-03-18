@@ -17,6 +17,7 @@ format:
   html:
     theme: cosmo
     css: styles.css
+    code-link: true
 
 editor: source
 

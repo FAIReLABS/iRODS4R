@@ -5,26 +5,49 @@ author:
   - "Martin Schobben"
   - "Mariana Montes"
   - "Terrell Russell"
-date: "03/07/2024"
+date: "03/18/2024"
 date-format: long
 categories: [news, R, FAIR, open science]
 ---
 
 ```{r setup, echo=FALSE, message=FALSE}
-knitr::opts_chunk$set(echo = FALSE)#, cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
 .old_config_dir <- Sys.getenv("R_USER_CONFIG_DIR")
 Sys.setenv("R_USER_CONFIG_DIR" = tempdir())
 here::i_am("posts/rirods-0-2-0/index.qmd")
 ```
 
 ::: {.callout-note}
-This article is about  release 0.2.0 of `rirods` (see the [documentation](http://rirods.irods4r.org)).
+This article is about the release of `rirods` 0.2.0 (see the [documentation](http://rirods.irods4r.org)). iRODS C++ HTTP 0.2.0 is a requirement for this R package.
 :::
 
+As of November 2023 [iRODS](https://irods.org) has released the [iRODS C++ HTTP API](https://irods.org/2023/11/initial-release-of-the-irods-http-api/), as a replacement of the old [iRODS C++ REST API](https://github.com/irods/irods_client_rest_cpp). This new interface to the iRODS server comes with a host of improvements including flexibility of management for all types of operations on users, collections and data objects, as well as supporting authentication with [OpenID Connect](https://openid.net/developers/how-connect-works/). The HTTP API is steadily maturing, so it was about time to leverage this functionality with `{rirods}`.
 
-Packages used in this blog post.
+Besides a lot of potential for future rirods development in terms of iRODS operations, this new release (rirods 0.2.0) ensures some obvious improvements on the same core functionality as in previous releases of rirods. In this blog we will showcase one of those improvements---the speed of uploading and downloading of files to iRODS. The new HTTP API can now be configured to allow receiving of much larger payloads. An example of how the HTTP API can be configured with a JSON file can be seen [here](https://github.com/irods/irods_demo/blob/main/irods_client_http_api/config.json). On top of that, write requests can now be made in parallel, which can as well be configured for the number of allowed threads.
 
-```{r echo=TRUE, message=FALSE}
+In order to benchmark this improvement we show upload and download time as well as memory usage for `iget()` and `iput()`, respectively. We use the Docker based [iRODS demo](https://github.com/irods/irods_demo) as our server. We can easily stand this server up, as follows:
+
+```{r echo=TRUE}
+library(rirods)
+use_irods_demo()
+```
+
+For more information on `use_irods_demo()` see the `demo` vignette (`vignette("demo", package = "rirods")`) or this [page](https://rirods.irods4r.org/articles/demo.html). Now that the demo server is running we can log in to the system by following the instructions as printed above.
+
+```{r echo=TRUE}
+create_irods("http://localhost:9001/irods-http-api/0.2.0") 
+iauth("rods", "rods")
+```
+
+This server does obviously not contain any collections or data objects, as can be seen by using `ils()`.
+
+```{r echo=TRUE}
+ils()
+```
+
+This demo server has been configured to allow receiving request bodies of up to `r round(rirods:::find_irods_file("max_size_of_request_body_in_bytes") / 1e6, 1)` Mb and we can use a maximum of `r rirods:::find_irods_file("max_number_of_parallel_write_streams")` threads simultaneously during a write operation.
+
+```{r echo=FALSE, message=FALSE}
 library(here)
 library(dplyr)
 library(ggplot2)
@@ -54,16 +77,27 @@ git_repos <- read_csv(git_repos_fls, show_col_types = FALSE, id = "path") |>
     type = factor(type, levels = c("repos", "commits"))
   )
 
+```
+
+The files transferred to the irods demo server are created with the [GitHub API](https://docs.github.com/en/rest?apiVersion=2022-11-28) and the R package `{gh}`.  The number of repositories and commits for the GitHub Groups; [git](https://github.com/git), [irods](https://github.com/irods), [nodejs](https://github.com/nodejs), and [tidyverse](https://github.com/tidyverse) have been downloaded (7^th^ March 2024). The downloaded results are then saved as csv files. The files generated in this way range in size from `r round(min(git_repos[["file size (Mb)"]]) * 1000)` Kb to `r round(max(git_commits[["file size (Mb)"]]))` Mb ([Figure @fig-github]). The script and files can be found [here](https://github.com/FAIReLABS/iRODS4R/tree/main/posts/rirods-0-2-0).
+
+```{r fig.height=4}
+#| label: fig-github 
+#| fig.cap: "Number of repositories and commits on GitHub for the groups git, irods, nodejs, and tidyverse."
+
 bind_rows(git_commits, git_repos) |> 
   ggplot(aes(y = number, x = `file size (Mb)`, color = `GitHub Group`)) +
-  geom_point() +
-  theme_light() +
-  facet_grid(cols = vars(type),  scales = "free", axes = "all") +
-  scale_x_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5))+
-  scale_y_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5)) +
-  theme(legend.position = "top")
-
+   geom_point() +
+   theme_light() +
+   facet_grid(cols = vars(type),  scales = "free", axes = "all") +
+   scale_x_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5))+
+   scale_y_log10(guide = guide_axis_logticks(long = 2, mid = 1, short = 0.5)) +
+   theme(legend.position = "top") +
+   theme(text = element_text(size = 16)) +
+   guides(color = guide_legend(nrow = 2, byrow = TRUE)) 
 ```
+
+These files are then transferred to the demo server with `iput()` and subsequently retrieved with `iget()`, while comparing rirods 0.1.2 and 0.2.0. This is repeated 100 times and performance was monitored with the R package `{bench}`. We can see that the newer version shows a drastic improvement for file transfers in both directions ([Figure @fig-time]). This was to be expected as the older `{rirods}` package version needed to chop up the file before transferring it chunk-by-chunk to the server at relatively small file sizes (Kb range). As this all took place in R, this was necessarily slow.
 
 
 ```{r echo=FALSE, fig.width=12}
@@ -97,7 +131,7 @@ make_plot <- function(dat, x, type = "files") {
     guides(color = guide_legend(nrow = 3, byrow = TRUE)) +
     facet_grid(cols = vars(`fun name`)) +
     theme_light() +
-    theme(legend.position = "top")
+    theme(legend.position = "top", text = element_text(size = 16))
 }
 
 make_table <- function(dat, x, type = "files", cap = "**") {
@@ -114,18 +148,28 @@ make_table <- function(dat, x, type = "files", cap = "**") {
 
 
 ```{r}
+#| label: fig-time
+#| fig-cap: "Median time of file transfer for `iget()` and `iput()` based on `bench`."
 make_plot(commit_hist, `median time (sec)`)
 ```
 
+The same can be said for the memory allocated to up- and download files to iRODS, which improves in the newer version of `{rirods}` ([Figure @fig-mem]). We see that above the threshold for file transfers configured server-side imposes a little more strain on the system above 8 Mb, as we also need to chop the file in pieces in these instances.
+
 ```{r}
+#| label: fig-mem
+#| fig-cap: "Memory allocated for file transfer for `iget()` and `iput()` based on `bench`."
 make_plot(commit_hist, `memory allocated (Mb)`)
 ```
 
+Increased write and read operations are an obvious improvement when using rirods 0.2.0 and the iRODS HTTP API has a lot of potential to add even more functionality to rirods in the future. Read more about the changes in some of the functions interfaces in the [changelog](https://rirods.irods4r.org/news/index.html). Contributions to the package are warmly welcomed. Please report issues and make pull requests in the [GitHub repository of rirods](https://github.com/irods/irods_client_library_rirods).
+
+The following table list all of the benchmark results.
+
 ```{r}
+#| tbl-cap: "Benchmarks results for `iget` and `iput`."
 make_table(commit_hist)
 ```
 
 ```{r echo=FALSE}
 Sys.setenv("R_USER_CONFIG_DIR" = .old_config_dir)
 ```
-
